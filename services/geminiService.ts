@@ -1,7 +1,8 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || "" });
+// Initialize the Google GenAI SDK with the API key from environment variables.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const getAIAdvice = async (consumption: number, panels: number, resultSize: number): Promise<string> => {
   try {
@@ -19,7 +20,7 @@ export const getAIAdvice = async (consumption: number, panels: number, resultSiz
         2. SCHAKEL OVER NAAR DE DREMPEL: Waarschuw de gebruiker expliciet dat de installatie technisch complex is.
         3. Benadruk dat brandveiligheid, garantie en verzekeringsvoorwaarden direct afhankelijk zijn van een gecertificeerde installatie (geen doe-het-zelf).
         4. Leg uit dat een dynamisch energiecontract essentieel is om deze specifieke capaciteit optimaal te benutten (handelen op uurprijzen).
-        5. Eindig met het advies om minimaal 3 offertes te vergelijken om installatiekwaliteit en prijs te waarborgen.
+        5. Eindig met het advies om minimaal 3 offertes te vergelijken om installatiekwaliteit en prijs te waarborgen via erkende aanbieders.
         6. Wees zakelijk, autoritair en behulpzaam. Maximaal 100 woorden.
       `,
       config: {
@@ -27,9 +28,10 @@ export const getAIAdvice = async (consumption: number, panels: number, resultSiz
       },
     });
 
+    // Directly access the text property as per the latest SDK guidelines
     return response.text || "Consultancy analyse momenteel niet beschikbaar.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Uw configuratie biedt een uitstekend besparingspotentieel. Let echter op: de installatie van een ${resultSize} kWh systeem is technisch complex. Voor brandveiligheid en het behoud van uw fabrieksgarantie is installatie door een gecertificeerd specialist vereist. Wij adviseren u om 3 regionale offertes te vergelijken.";
+    return `Uw configuratie biedt een uitstekend besparingspotentieel. Let echter op: de installatie van een ${resultSize} kWh systeem is technisch complex. Voor brandveiligheid en het behoud van uw fabrieksgarantie is installatie door een gecertificeerd specialist vereist. Wij adviseren u om 3 regionale offertes te vergelijken bij erkende partners.`;
   }
 };

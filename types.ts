@@ -21,12 +21,13 @@ export interface Product {
   partnerName: string;
 }
 
-export interface EnergyPartner {
-  id: string;
-  name: string;
-  usp: string;
-  logoUrl: string;
-  affiliateUrl: string;
+export interface TargetGroupInfo {
+  group: string;
+  capacity: string;
+  payback: string;
+  benefit: string;
+  tax: string;
+  contractAdvice: string;
 }
 
 export interface BrandComparison {
@@ -50,6 +51,7 @@ export interface BlogPost {
   content: string;
   slug: string;
   imageUrl?: string;
+  readingTime: string;
 }
 
 export interface FAQ {

@@ -1,61 +1,31 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import Header from './components/Header';
 import Calculator from './components/Calculator';
 import Footer from './components/Footer';
 import FloatingCTA from './components/FloatingCTA';
 import { CalculationResult, BlogPost, AppTab } from './types';
-import { RECOMMENDED_PRODUCTS, FAQS, BLOG_POSTS, LEGAL_PAGES } from './constants';
-import { fetchLiveDeals, DaisyconDeal } from './services/daisyconService';
+import { RECOMMENDED_PRODUCTS, FAQS, BLOG_POSTS, TARGET_GROUPS, TOP_5_BRANDS } from './constants';
 
 const App: React.FC = () => {
   const [result, setResult] = useState<(CalculationResult & { postalCode: string }) | null>(null);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
-  const [suggestedCategory, setSuggestedCategory] = useState<string>('');
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
-  const [selectedLegal, setSelectedLegal] = useState<string | null>(null);
-  const [liveDeals, setLiveDeals] = useState<DaisyconDeal[]>([]);
-
-  useEffect(() => {
-    const loadDeals = async () => {
-      const deals = await fetchLiveDeals();
-      setLiveDeals(deals);
-    };
-    loadDeals();
-  }, []);
-
-  useEffect(() => {
-    if (result) {
-      if (result.idealSize > 12) setSuggestedCategory('Premium');
-      else if (result.idealSize >= 4) setSuggestedCategory('Modulair');
-      else setSuggestedCategory('Budget');
-    }
-  }, [result]);
-
-  const handleLeadSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLeadSubmitted(true);
-  };
 
   const navigateTo = (tab: AppTab, anchor?: string) => {
     setActiveTab(tab);
     setSelectedBlog(null);
-    setSelectedLegal(null);
     
     if (tab === 'home' && anchor) {
-      const targetAnchor = (anchor === 'results-section' && !result) ? 'calculator-anchor' : anchor;
-      
       setTimeout(() => {
-        const element = document.getElementById(targetAnchor);
+        const element = document.getElementById(anchor);
         if (element) {
           const yOffset = -100;
           const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
           window.scrollTo({ top: y, behavior: 'smooth' });
         }
       }, 100);
-    } else if (tab === 'legal' && anchor) {
-      setSelectedLegal(anchor);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -73,80 +43,56 @@ const App: React.FC = () => {
   const renderBlogContent = (content: string) => {
     return content.split('\n').map((line, i) => {
       if (line.startsWith('## ')) {
-        return <h2 key={i} className="text-3xl font-black mt-12 mb-6 text-gray-900 leading-tight border-l-4 border-[#48BB78] pl-6 uppercase tracking-tight">{line.replace('## ', '')}</h2>;
+        return <h2 key={i} className="text-3xl font-black mt-16 mb-8 text-gray-900 border-l-8 border-[#48BB78] pl-8 uppercase tracking-tighter leading-none">{line.replace('## ', '')}</h2>;
       }
       if (line.startsWith('### ')) {
-        return <h3 key={i} className="text-2xl font-bold mt-8 mb-4 text-gray-800">{line.replace('### ', '')}</h3>;
+        return <h3 key={i} className="text-2xl font-bold mt-10 mb-6 text-gray-800 italic">{line.replace('### ', '')}</h3>;
       }
-      if (line.startsWith('|')) {
-        if (line.includes('---')) return null;
-        const cells = line.split('|').filter(c => c.trim().length > 0);
-        return (
-          <div key={i} className="flex border-b border-gray-100 py-3 bg-gray-50/50">
-            {cells.map((c, j) => <div key={j} className={`flex-1 text-sm px-4 ${j === 0 ? 'font-black text-gray-900' : 'text-gray-600'}`}>{c.trim()}</div>)}
-          </div>
-        );
+      if (line.startsWith('* ')) {
+        return <li key={i} className="ml-8 mb-3 text-gray-600 list-disc font-medium text-lg leading-relaxed">{line.replace('* ', '')}</li>;
       }
-      if (line === '[AFFILIATE LINK HIER]') {
+      if (line.startsWith('[') && line.includes('Daisycon')) {
         return (
-          <div key={i} className="my-12 p-10 bg-[#48BB78]/5 border-2 border-dashed border-[#48BB78]/20 rounded-[3rem] text-center shadow-inner">
-            <p className="text-xs font-black text-[#48BB78] uppercase tracking-[0.2em] mb-6">Partner Tip bij bol</p>
-            <h4 className="text-xl font-bold mb-6 text-gray-900 max-w-md mx-auto italic">Vind de beste hardware voor dit scenario bij bol</h4>
-            <button 
-              onClick={() => window.open('https://www.bol.com', '_blank')}
-              className="bg-[#ED8936] hover:bg-[#D6762E] text-white font-black py-5 px-10 rounded-2xl shadow-2xl transition-all transform hover:scale-105 active:scale-95 text-xs uppercase tracking-widest"
-            >
-              Bekijk Aanbiedingen bij bol &rarr;
+          <div key={i} className="my-14 p-12 bg-gradient-to-br from-[#48BB78]/10 to-transparent border-2 border-dashed border-[#48BB78]/40 rounded-[3.5rem] text-center shadow-inner">
+            <p className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.3em] mb-6">Expert Aanbeveling 2025</p>
+            <h4 className="text-xl font-bold mb-8 text-gray-800">Bespaar op installatiekosten. Vergelijk hier gratis 3 erkende installateurs.</h4>
+            <button onClick={() => navigateTo('home', 'calculator-anchor')} className="bg-[#48BB78] text-white px-12 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:shadow-2xl hover:bg-black transition-all transform hover:scale-105 active:scale-95">
+              Start Gratis Offerte-check &rarr;
             </button>
           </div>
         );
       }
-      if (line.trim().length === 0) return <div key={i} className="h-4" />;
-      return <p key={i} className="mb-6 text-gray-600 leading-relaxed text-lg">{line}</p>;
+      if (line.trim().length === 0) return <div key={i} className="h-6" />;
+      return <p key={i} className="mb-8 text-gray-600 leading-relaxed text-xl font-normal" dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-900">$1</strong>') }}></p>;
     });
   };
 
-  const renderLegalContent = () => {
-    const page = selectedLegal ? LEGAL_PAGES[selectedLegal] : null;
-    if (!page) return null;
-
-    return (
-      <section className="py-24 bg-white min-h-screen">
-        <div className="max-w-3xl mx-auto px-4">
-          <button onClick={() => navigateTo('home')} className="text-sm font-bold text-[#48BB78] mb-8 flex items-center">&larr; Terug naar Home</button>
-          <h1 className="text-4xl font-black mb-8 text-gray-900">{page.title}</h1>
-          <div className="prose prose-lg max-w-none text-gray-600 leading-relaxed whitespace-pre-wrap">{page.content}</div>
-        </div>
-      </section>
-    );
-  };
-
   return (
-    <div className="min-h-screen flex flex-col selection:bg-[#48BB78] selection:text-white bg-[#F7FAFC]">
+    <div className="min-h-screen flex flex-col bg-[#F7FAFC] selection:bg-[#48BB78]/30 selection:text-black">
       <Header onNavigate={navigateTo} activeTab={activeTab === 'legal' ? 'home' : activeTab as any} hasResult={!!result} />
 
       <main className="flex-grow">
         {activeTab === 'home' ? (
           <>
-            {/* Hero Section */}
-            <section id="hero" className="relative pt-16 pb-32 overflow-hidden bg-[#F7FAFC]">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            {/* HERO SECTION */}
+            <section id="hero" className="relative pt-24 pb-32 overflow-hidden bg-[#F7FAFC]">
+              <div className="max-w-7xl mx-auto px-4 relative z-10 text-center lg:text-left">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
-                  <div className="flex-1 text-center lg:text-left">
-                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-white shadow-sm border border-gray-100 text-[#48BB78] text-xs font-bold mb-8 uppercase tracking-widest">
-                      <span className="flex h-2 w-2 rounded-full bg-[#48BB78] mr-2 animate-pulse"></span>
-                      Update: Energiemarkt 2025 Analyse Live
+                  <div className="flex-1">
+                    <div className="inline-flex items-center px-4 py-2 rounded-full bg-white shadow-sm border border-gray-100 text-[#48BB78] text-[10px] font-black mb-10 uppercase tracking-[0.2em]">
+                      <span className="flex h-2.5 w-2.5 rounded-full bg-[#48BB78] mr-3 animate-pulse"></span>
+                      Update: Energiemarkt 2025 Live
                     </div>
-                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#1A202C] leading-[1.05] mb-8 tracking-tight">
-                      Bespaar Slim. <br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#48BB78] to-[#38a169]">Kies de Juiste Accu.</span>
+                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-[#1A202C] leading-[0.9] mb-10 tracking-tighter">
+                      Stop de <br />
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#48BB78] to-[#38a169]">Terugleverboete.</span>
                     </h1>
-                    <p className="text-xl text-gray-600 mb-10 max-w-xl leading-relaxed italic">
-                      "Onafhankelijk advies, 5 diepgaande gidsen en de beste deals bij bol."
+                    <p className="text-2xl text-gray-500 mb-12 max-w-2xl leading-relaxed font-medium">
+                      Betaalt u ook honderden euro's om uw eigen stroom terug te leveren? Een thuisbatterij i.c.m. een <strong>dynamisch contract</strong> stelt u onafhankelijk.
                     </p>
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-                      <button onClick={() => navigateTo('home', 'calculator-anchor')} className="bg-[#1A202C] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-2xl">Start Analyse &rarr;</button>
-                      <button onClick={() => navigateTo('kennisbank')} className="bg-white border-2 border-gray-100 text-gray-600 px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:border-[#48BB78] transition-all">Lees Kennisbank</button>
+                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
+                      <button onClick={() => navigateTo('home', 'calculator-anchor')} className="bg-[#1A202C] text-white px-12 py-6 rounded-[2.5rem] font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-2xl hover:translate-y-[-2px]">Start Systeem Analyse</button>
+                      <button onClick={() => navigateTo('home', 'merken')} className="bg-white border-4 border-gray-100 text-gray-600 px-12 py-6 rounded-[2.5rem] font-black uppercase tracking-widest text-xs hover:border-[#48BB78] transition-all">Bekijk Top 5 Accu's</button>
                     </div>
                   </div>
                   <div id="calculator-anchor" className="flex-1 w-full flex justify-center">
@@ -156,71 +102,110 @@ const App: React.FC = () => {
               </div>
             </section>
 
-            {/* Results Section */}
-            {result && (
-              <section id="results-section" className="py-24 bg-white scroll-mt-24">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                  <div className="text-center mb-16">
-                    <h2 className="text-4xl font-black text-gray-900 mb-4 tracking-tight">Jouw Persoonlijk Rapport</h2>
-                    <p className="text-gray-500 italic text-sm">Regio: {result.postalCode} | Analyse 2025</p>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-8 space-y-8">
-                        <div className="bg-[#1A202C] rounded-[3rem] p-10 md:p-14 text-white shadow-2xl relative overflow-hidden border-b-8 border-[#48BB78]">
-                            <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-12">
-                                <div className="text-center md:text-left">
-                                    <p className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.2em] mb-4">Geadviseerde Opslag</p>
-                                    <div className="flex items-baseline justify-center md:justify-start">
-                                        <span className="text-6xl font-black tracking-tighter">{result.idealSize}</span>
-                                        <span className="text-xl font-bold text-gray-500 ml-2">kWh</span>
-                                    </div>
-                                </div>
-                                <div className="text-center md:text-left border-y md:border-y-0 md:border-x border-gray-800 py-8 md:py-0 md:px-12">
-                                    <p className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.2em] mb-4">Terugverdientijd</p>
-                                    <div className="flex items-baseline justify-center md:justify-start">
-                                        <span className="text-6xl font-black tracking-tighter">{result.paybackTime}</span>
-                                        <span className="text-xl font-bold text-gray-500 ml-2">jr</span>
-                                    </div>
-                                </div>
-                                <div className="text-center md:text-left">
-                                    <p className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.2em] mb-4">Jaarlijkse Winst</p>
-                                    <div className="flex items-baseline justify-center md:justify-start">
-                                        <span className="text-xl font-bold text-[#48BB78] mr-1">€</span>
-                                        <span className="text-6xl font-black tracking-tighter text-[#48BB78]">{result.annualSavings}</span>
-                                    </div>
+            {/* TOP 5 BRANDS SECTION */}
+            <section id="merken" className="py-32 bg-white">
+                <div className="max-w-7xl mx-auto px-4">
+                    <div className="text-center mb-20">
+                        <span className="text-[11px] font-black text-[#48BB78] uppercase tracking-[0.5em] mb-4 block">Onafhankelijke Test 2025</span>
+                        <h2 className="text-5xl font-black text-gray-900 tracking-tighter mb-6 italic underline decoration-8 decoration-[#48BB78]/20 text-center">De Top 5 Thuisbatterijen</h2>
+                        <p className="text-gray-400 italic text-lg text-center mx-auto max-w-2xl font-medium">"Getest op rendement, garantie en software-integratie voor de Nederlandse markt."</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                        {TOP_5_BRANDS.map((brand, idx) => (
+                            <div key={idx} className="bg-[#F7FAFC] p-8 rounded-[3rem] border-2 border-transparent hover:border-[#48BB78]/20 transition-all hover:shadow-2xl text-center group">
+                                <div className="text-[#48BB78] font-black text-4xl mb-4 italic">#{idx+1}</div>
+                                <h3 className="text-xl font-black mb-2 text-gray-900 tracking-tight leading-none uppercase">{brand.name}</h3>
+                                <p className="text-[10px] font-black text-gray-400 mb-6 uppercase tracking-widest">{brand.bestFor}</p>
+                                <div className="flex flex-col items-center gap-2 border-t border-gray-100 pt-6">
+                                    <span className="text-3xl font-black text-[#1A202C]">{brand.score}<span className="text-sm text-gray-400">/10</span></span>
+                                    <span className="text-[9px] font-black uppercase text-gray-500 tracking-widest">Garantie: {brand.warranty}</span>
                                 </div>
                             </div>
-                            <div className="mt-12 pt-12 border-t border-gray-800">
-                                <p className="text-gray-300 italic text-sm leading-relaxed">"{result.aiAdvice}"</p>
+                        ))}
+                    </div>
+                    <div className="mt-16 text-center">
+                        <p className="text-gray-500 mb-8 italic text-center font-medium">Zelf een merk op het oog? Vergelijk altijd meerdere offertes voor de beste installatieprijs.</p>
+                        <button onClick={() => navigateTo('home', 'calculator-anchor')} className="bg-[#ED8936] text-white px-10 py-5 rounded-full font-black uppercase tracking-widest text-xs shadow-xl hover:scale-105 transition-transform">Vergelijk gratis 3 offertes &rarr;</button>
+                    </div>
+                </div>
+            </section>
+
+            {/* SITUATIE ADVIES TABEL */}
+            <section className="py-32 bg-[#F7FAFC]">
+                <div className="max-w-7xl mx-auto px-4">
+                    <div className="text-center mb-20">
+                        <span className="text-[11px] font-black text-[#48BB78] uppercase tracking-[0.5em] mb-4 block text-center">Advies op Maat</span>
+                        <h2 className="text-5xl font-black text-gray-900 tracking-tighter mb-6 text-center">Rendement per Situatie</h2>
+                    </div>
+                    <div className="overflow-x-auto rounded-[3.5rem] border-4 border-white shadow-2xl">
+                        <table className="w-full text-left bg-white border-collapse">
+                            <thead className="bg-[#1A202C] text-white">
+                                <tr>
+                                    <th className="p-10 text-[10px] font-black uppercase tracking-widest">Type Eigenaar</th>
+                                    <th className="p-10 text-[10px] font-black uppercase tracking-widest">Capaciteit</th>
+                                    <th className="p-10 text-[10px] font-black uppercase tracking-widest">Verwacht Rendement</th>
+                                    <th className="p-10 text-[10px] font-black uppercase tracking-widest">Contract Advies</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {TARGET_GROUPS.map((tg, idx) => (
+                                    <tr key={idx} className="hover:bg-gray-50 transition-colors group">
+                                        <td className="p-10 font-black text-gray-900 text-xl group-hover:text-[#48BB78] transition-colors">{tg.group}</td>
+                                        <td className="p-10 text-gray-600 font-bold">{tg.capacity}</td>
+                                        <td className="p-10 text-[#48BB78] font-black">{tg.payback}</td>
+                                        <td className="p-10 text-[#ED8936] font-bold text-xs uppercase tracking-widest">{tg.contractAdvice}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            {/* CALCULATOR RESULTS */}
+            {result && (
+              <section id="results-section" className="py-32 bg-white scroll-mt-24 border-y border-gray-50">
+                <div className="max-w-7xl mx-auto px-4">
+                  <h2 className="text-5xl font-black text-center mb-20 text-gray-900 tracking-tighter italic">Uw Persoonlijk Rendement</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                    <div className="lg:col-span-8">
+                        <div className="bg-[#1A202C] rounded-[4rem] p-16 text-white shadow-3xl border-b-[16px] border-[#48BB78]">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-16 text-center md:text-left">
+                                <div>
+                                    <p className="text-[11px] font-black text-[#48BB78] uppercase tracking-[0.3em] mb-6">Ideale Opslag</p>
+                                    <p className="text-7xl font-black tracking-tighter">{result.idealSize} <span className="text-2xl text-gray-600 font-bold uppercase tracking-widest">kWh</span></p>
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-black text-[#48BB78] uppercase tracking-[0.3em] mb-6">Terugverdientijd</p>
+                                    <p className="text-7xl font-black tracking-tighter">{result.paybackTime} <span className="text-2xl text-gray-600 font-bold uppercase tracking-widest">jr</span></p>
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-black text-[#48BB78] uppercase tracking-[0.3em] mb-6">Jaarlijkse Besparing</p>
+                                    <p className="text-7xl font-black tracking-tighter text-[#48BB78]">€{result.annualSavings}</p>
+                                </div>
+                            </div>
+                            <div className="mt-20 pt-16 border-t border-white/5 italic text-gray-400 text-xl leading-relaxed font-medium">
+                                "{result.aiAdvice}"
                             </div>
                         </div>
                     </div>
-
                     <div className="lg:col-span-4">
-                        <div className="bg-white rounded-[2.5rem] p-8 md:p-10 border-4 border-[#ED8936] shadow-2xl sticky top-28">
-                            {leadSubmitted ? (
-                                <div className="text-center py-12">
-                                    <h3 className="text-2xl font-black mb-4 text-gray-900 tracking-tight">Ontvangen!</h3>
-                                    <p className="text-gray-500 text-sm">Gecertificeerde installateurs voor {result.postalCode} nemen contact met u op.</p>
-                                </div>
-                            ) : (
-                                <>
-                                    <h3 className="text-2xl font-black mb-6 text-gray-900 tracking-tight italic text-center">Plan Adviesgesprek ⚡️</h3>
-                                    <form onSubmit={handleLeadSubmit} className="space-y-4">
-                                        <div className="grid grid-cols-3 gap-3">
-                                            <input type="text" placeholder="Postcode" value={result.postalCode} className="col-span-1 px-4 py-4 rounded-2xl border-2 border-gray-50 bg-gray-100 font-bold text-xs outline-none" disabled />
-                                            <input type="text" placeholder="Huisnr." className="col-span-2 px-6 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 outline-none focus:border-[#ED8936] transition-all" required />
-                                        </div>
-                                        <input type="text" placeholder="Naam" className="w-full px-6 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 outline-none focus:border-[#ED8936] transition-all" required />
-                                        <input type="email" placeholder="E-mail" className="w-full px-6 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 outline-none focus:border-[#ED8936] transition-all" required />
-                                        <input type="tel" placeholder="Telefoon" className="w-full px-6 py-4 rounded-2xl border-2 border-gray-50 bg-gray-50 outline-none focus:border-[#ED8936] transition-all" required />
-                                        <button className="w-full bg-[#ED8936] text-white font-black py-6 rounded-2xl uppercase tracking-widest text-sm shadow-xl transform hover:scale-[1.02] active:scale-95 transition-all">
-                                            Bekijk Offertes bij bol &rarr;
-                                        </button>
-                                    </form>
-                                </>
-                            )}
+                        <div className="bg-white rounded-[4rem] p-12 border-8 border-[#ED8936] shadow-3xl sticky top-28">
+                          <h2 className="text-3xl font-black mb-8 italic tracking-tighter leading-none text-gray-900 uppercase">Verzilver Winst ⚡️</h2>
+                          <p className="text-lg text-gray-500 mb-10 leading-relaxed font-medium">Ontvang binnen 24 uur 3 vrijblijvende prijsopgaven van erkende installateurs.</p>
+                          {leadSubmitted ? (
+                            <div className="text-center py-16 bg-[#48BB78]/5 rounded-[3rem] border-2 border-[#48BB78]/20">
+                              <p className="font-black text-[#48BB78] uppercase tracking-widest text-sm text-center">Verzonden!</p>
+                            </div>
+                          ) : (
+                            <form onSubmit={(e) => {e.preventDefault(); setLeadSubmitted(true);}} className="space-y-6">
+                              <input type="text" placeholder="Postcode" className="w-full p-6 rounded-[2rem] bg-gray-50 border-2 border-transparent focus:border-[#ED8936] outline-none font-bold text-lg" required />
+                              <input type="email" placeholder="E-mail" className="w-full p-6 rounded-[2rem] bg-gray-50 border-2 border-transparent focus:border-[#ED8936] outline-none font-bold text-lg" required />
+                              <button className="w-full bg-[#ED8936] text-white font-black py-8 rounded-[2.5rem] uppercase tracking-widest text-xs shadow-2xl transform hover:scale-[1.03] active:scale-95 transition-all">
+                                Vergelijk 3 installateurs &rarr;
+                              </button>
+                            </form>
+                          )}
                         </div>
                     </div>
                   </div>
@@ -228,131 +213,97 @@ const App: React.FC = () => {
               </section>
             )}
 
-            {/* Aanbevelingen Sectie */}
-            <section id="onze-aanbevelingen" className="py-32 bg-[#F7FAFC] border-y border-gray-100 scroll-mt-20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-4xl font-black text-[#1A202C] mb-6 tracking-tight">Top Hardware bij bol</h2>
-                        <p className="text-gray-500 max-w-2xl mx-auto text-sm italic">"Onderzoek welk systeem aansluit bij uw energiebehoefte en vergelijk hardware-specificaties."</p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                        {RECOMMENDED_PRODUCTS.map((product) => (
-                            <div key={product.id} className={`group relative bg-white rounded-[3rem] border-2 transition-all duration-500 overflow-hidden ${suggestedCategory === product.category ? 'border-[#48BB78] shadow-2xl scale-[1.03] z-10' : 'border-transparent shadow-sm'}`}>
-                                <div className="h-56 relative overflow-hidden bg-gray-100">
-                                    <img src={product.imageUrl} className="h-full w-full object-cover transition duration-1000 group-hover:scale-110" alt={product.name} />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                                    <div className="absolute bottom-6 left-8 text-white z-10">
-                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-80">{product.category}</span>
-                                        <h3 className="text-2xl font-black tracking-tight">{product.name}</h3>
-                                    </div>
-                                </div>
-                                <div className="p-8 flex flex-col min-h-[360px]">
-                                    <p className="text-gray-500 text-sm mb-10 leading-relaxed italic">"{product.description}"</p>
-                                    <div className="mt-auto space-y-3">
-                                      <a href={product.partnerUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center bg-[#48BB78] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all hover:bg-gray-900 shadow-lg">
-                                        {product.partnerName}
-                                      </a>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* FAQ Sectie - Quick Scan */}
-            <section id="faq" className="py-32 bg-white scroll-mt-20">
-                <div className="max-w-4xl mx-auto px-4">
+            {/* WHITE PAPERS PREVIEW */}
+            <section className="py-32 bg-[#1A202C] text-white">
+                <div className="max-w-7xl mx-auto px-4">
                     <div className="text-center mb-20">
-                        <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.4em] mb-4 block">Quick Answers</span>
-                        <h2 className="text-5xl font-black text-gray-900 mb-6 tracking-tight">Veelgestelde Vragen</h2>
-                        <p className="text-gray-500 text-lg max-w-2xl mx-auto italic">"Snel antwoord op 10 prangende vragen, of duik diep in onze 5 gidsen voor meer detail."</p>
-                    </div>
-                    <div className="grid grid-cols-1 gap-8">
-                        {FAQS.map((faq, idx) => (
-                            <div key={idx} className="bg-[#F7FAFC] rounded-[2.5rem] p-10 border border-transparent hover:border-gray-200 transition-all hover:bg-white hover:shadow-xl group">
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                  <h3 className="text-xl font-bold text-gray-900 flex-grow pr-4">{faq.q}</h3>
-                                  {faq.blogSlug && (
-                                    <button onClick={() => openBlog(faq.blogSlug!)} className="shrink-0 bg-white border border-gray-200 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-[#48BB78] hover:text-white transition-all shadow-sm">
-                                      Lees Gids &rarr;
-                                    </button>
-                                  )}
-                                </div>
-                                <div className="h-px bg-gray-200 w-full my-6"></div>
-                                <p className="text-gray-500 text-md leading-relaxed italic">"{faq.a}"</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Kennisbank Preview - Deep Dive (Toont alle 5) */}
-            <section id="kennisbank-preview" className="py-32 bg-[#1A202C] text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-                        <div>
-                            <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.4em] mb-4 block text-center lg:text-left">Deep Dives</span>
-                            <h2 className="text-5xl font-black mb-6 tracking-tight text-center lg:text-left">Diepgaande Kennisbank</h2>
-                            <p className="text-gray-400 max-w-xl text-lg italic opacity-80 text-center lg:text-left">"Strategische analyses voor wie het maximale uit zijn energierekening wil halen."</p>
-                        </div>
-                        <button onClick={() => navigateTo('kennisbank')} className="bg-[#48BB78] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white hover:text-black transition-all shadow-2xl mx-auto lg:mx-0">Bekijk Alle 5 Artikelen</button>
+                        <h2 className="text-6xl font-black tracking-tighter mb-6 leading-none text-center">Kennisbank: De 5 Whitepapers</h2>
+                        <p className="text-gray-400 max-w-2xl mx-auto italic text-lg opacity-80 text-center font-medium">"Onze diepgaande gidsen van 2500+ woorden die u alles leren over de energiemarkt van 2025."</p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                         {BLOG_POSTS.map((post) => (
                             <div key={post.id} className="group cursor-pointer bg-white/5 p-4 rounded-[3rem] hover:bg-white/10 transition-all border border-white/5" onClick={() => openBlog(post.slug)}>
-                                <div className="aspect-[16/10] rounded-[2rem] overflow-hidden mb-8 shadow-2xl">
-                                    <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100" alt={post.title} />
+                                <div className="aspect-[16/10] rounded-[2.2rem] overflow-hidden mb-8 shadow-2xl">
+                                    <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 grayscale group-hover:grayscale-0" alt={post.title} />
                                 </div>
                                 <div className="px-4 pb-4">
-                                  <h3 className="text-2xl font-bold mb-4 group-hover:text-[#48BB78] transition-colors line-clamp-2 leading-tight">{post.title}</h3>
+                                  <h3 className="text-2xl font-bold mb-4 group-hover:text-[#48BB78] transition-colors leading-tight">{post.title}</h3>
                                   <p className="text-sm text-gray-400 mb-8 line-clamp-3 italic opacity-70">"{post.excerpt}"</p>
-                                  <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform inline-block">Lees Volledige Gids &rarr;</span>
+                                  <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-widest group-hover:translate-x-2 transition-transform inline-block">Lees Volledig Rapport &rarr;</span>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
-          </>
-        ) : activeTab === 'kennisbank' ? (
-          <section className="py-24 bg-white min-h-screen">
-            <div className="max-w-4xl mx-auto px-4">
-              {selectedBlog ? (
-                <article className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                  <button onClick={() => setSelectedBlog(null)} className="text-[10px] font-black uppercase tracking-widest text-[#48BB78] mb-12 flex items-center hover:-translate-x-2 transition-transform">
-                    &larr; Terug naar Kennisbank
-                  </button>
-                  <div className="mb-12">
-                    <img src={selectedBlog.imageUrl} alt={selectedBlog.title} className="w-full h-[500px] object-cover rounded-[4rem] shadow-2xl" />
-                  </div>
-                  <h1 className="text-4xl md:text-7xl font-black mb-12 leading-[1.1] text-gray-900 tracking-tight">{selectedBlog.title}</h1>
-                  <div className="prose prose-2xl max-w-none text-gray-700 selection:bg-[#48BB78]/20">{renderBlogContent(selectedBlog.content)}</div>
-                  <div className="mt-24 pt-12 border-t border-gray-100">
-                    <div className="bg-[#F7FAFC] p-12 rounded-[4rem] text-center border-2 border-gray-100">
-                      <h3 className="text-3xl font-black mb-6">Klaar voor de volgende stap?</h3>
-                      <p className="text-gray-500 mb-10 max-w-md mx-auto italic">"Bereken binnen 1 minuut wat een {selectedBlog.slug.includes('rendement') ? 'rendabel' : 'slim'} systeem voor jouw woning kost."</p>
-                      <button onClick={() => navigateTo('home', 'calculator-anchor')} className="bg-[#1A202C] text-white px-12 py-6 rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-[#48BB78] transition-all transform hover:scale-105 shadow-2xl">Start Gratis Analyse</button>
+
+            {/* FAQ SECTION */}
+            <section id="faq" className="py-40 bg-white scroll-mt-20">
+              <div className="max-w-5xl mx-auto px-4 text-center">
+                <div className="mb-24">
+                  <span className="text-[11px] font-black text-[#48BB78] uppercase tracking-[0.6em] mb-6 block text-center">Ondersteuning</span>
+                  <h2 className="text-6xl font-black text-gray-900 tracking-tighter italic text-center">10 Veelgestelde Vragen</h2>
+                </div>
+                <div className="space-y-10 text-left">
+                  {FAQS.map((faq, idx) => (
+                    <div key={idx} className="bg-[#F7FAFC] rounded-[3.5rem] p-12 border-2 border-transparent hover:border-gray-100 transition-all group shadow-sm hover:shadow-xl">
+                      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6">
+                        <h3 className="text-2xl font-black text-gray-900 pr-12 leading-tight tracking-tight italic group-hover:text-[#48BB78] transition-colors">{faq.q}</h3>
+                        {faq.blogSlug && (
+                          <button onClick={() => openBlog(faq.blogSlug!)} className="shrink-0 bg-white px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border-2 border-gray-100 hover:bg-[#48BB78] hover:text-white transition-all shadow-sm">Whitepaper &rarr;</button>
+                        )}
+                      </div>
+                      <p className="text-gray-500 text-xl italic font-medium leading-relaxed opacity-80">"{faq.a}"</p>
                     </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </>
+        ) : (
+          /* KENNISBANK PAGE */
+          <section className="py-32 bg-white min-h-screen">
+            <div className="max-w-5xl mx-auto px-4">
+              {selectedBlog ? (
+                <article className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                  <button onClick={() => setSelectedBlog(null)} className="text-[11px] font-black uppercase tracking-[0.4em] text-[#48BB78] mb-16 flex items-center hover:-translate-x-3 transition-transform italic underline decoration-4 underline-offset-8">
+                    &larr; Terug naar de Whitepapers
+                  </button>
+                  <div className="flex items-center gap-6 mb-12">
+                      <span className="bg-[#48BB78]/10 text-[#48BB78] px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.3em]">{selectedBlog.readingTime} leesdiepte</span>
+                      <span className="text-gray-300 text-[10px] font-black uppercase tracking-[0.3em]">Masterclass Energie 2025</span>
+                  </div>
+                  <h1 className="text-5xl md:text-8xl font-black mb-16 leading-[0.9] text-gray-900 tracking-tighter">{selectedBlog.title}</h1>
+                  <div className="mb-20">
+                    <img src={selectedBlog.imageUrl} alt={selectedBlog.title} className="w-full h-[600px] object-cover rounded-[5rem] shadow-4xl grayscale hover:grayscale-0 transition-all duration-1000" />
+                  </div>
+                  <div className="prose prose-2xl max-w-none text-gray-700 selection:bg-[#48BB78]/20 font-medium">
+                    {renderBlogContent(selectedBlog.content)}
+                  </div>
+                  
+                  <div className="mt-32 p-20 bg-[#1A202C] rounded-[5rem] text-center text-white border-b-[20px] border-[#ED8936] shadow-4xl relative overflow-hidden">
+                      <h3 className="text-5xl font-black mb-10 tracking-tighter italic">Stuur uw energierekening bij.</h3>
+                      <p className="text-gray-400 mb-14 max-w-2xl mx-auto italic text-2xl font-medium opacity-80">"Ontvang gratis 3 offertes van regionale specialisten en start met besparen op installatiekosten."</p>
+                      <button onClick={() => navigateTo('home', 'calculator-anchor')} className="bg-[#48BB78] text-white px-16 py-8 rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all transform hover:scale-105 shadow-4xl">Start Offerte-check &rarr;</button>
                   </div>
                 </article>
               ) : (
                 <>
-                  <div className="mb-24 text-center md:text-left">
-                    <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.4em] mb-4 block">Overzicht</span>
-                    <h1 className="text-6xl font-black mb-8 text-gray-900 tracking-tight">Diepgaande Gidsen</h1>
-                    <p className="text-gray-500 text-xl italic max-w-2xl leading-relaxed">"5 onafhankelijke rapporten over energie-opslag, rendement en technologie."</p>
+                  <div className="mb-32">
+                    <span className="text-[11px] font-black text-[#48BB78] uppercase tracking-[0.6em] mb-6 block">Kennisbank</span>
+                    <h1 className="text-6xl md:text-8xl font-black mb-10 text-gray-900 tracking-tighter leading-none text-center">Expert <br />Whitepapers</h1>
+                    <p className="text-gray-400 text-3xl italic max-w-3xl leading-relaxed font-medium text-center mx-auto">"Onze diepgaande gidsen voor rendement, techniek en wetgeving."</p>
                   </div>
-                  <div className="grid grid-cols-1 gap-16">
-                    {BLOG_POSTS.map((post) => (
-                      <div key={post.id} className="group cursor-pointer flex flex-col md:flex-row gap-12 items-center border-b border-gray-100 pb-16 transition-all hover:translate-y-[-8px]" onClick={() => setSelectedBlog(post)}>
-                        <div className="md:w-[400px] h-[300px] rounded-[3rem] overflow-hidden shrink-0 shadow-xl">
-                          <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                  <div className="grid grid-cols-1 gap-24">
+                    {BLOG_POSTS.map(post => (
+                      <div key={post.id} className="group cursor-pointer flex flex-col md:flex-row gap-16 items-center border-b-2 border-gray-50 pb-24 transition-all hover:translate-y-[-8px]" onClick={() => openBlog(post.slug)}>
+                        <div className="md:w-[500px] h-[350px] rounded-[4rem] overflow-hidden shrink-0 shadow-2xl relative">
+                          <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 grayscale group-hover:grayscale-0" />
                         </div>
-                        <div className="flex-1">
-                          <h2 className="text-3xl font-bold mb-6 group-hover:text-[#48BB78] transition-colors leading-tight">{post.title}</h2>
-                          <p className="text-gray-500 mb-8 text-lg leading-relaxed italic line-clamp-3">"{post.excerpt}"</p>
-                          <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.2em] group-hover:translate-x-2 transition-transform inline-block">Lees Volledige Gids &rarr;</span>
+                        <div className="flex-1 text-center md:text-left">
+                          <h2 className="text-4xl font-black mb-8 group-hover:text-[#48BB78] transition-colors leading-[1.1] tracking-tighter text-gray-900 italic uppercase">{post.title}</h2>
+                          <p className="text-gray-400 mb-10 text-xl leading-relaxed italic font-medium line-clamp-3">"{post.excerpt}"</p>
+                          <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-[0.4em] group-hover:translate-x-4 transition-transform inline-block text-center md:text-left">Lees Volledig Rapport &rarr;</span>
                         </div>
                       </div>
                     ))}
@@ -361,8 +312,6 @@ const App: React.FC = () => {
               )}
             </div>
           </section>
-        ) : (
-          renderLegalContent()
         )}
       </main>
 

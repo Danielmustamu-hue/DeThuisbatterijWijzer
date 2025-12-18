@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>De Thuisbatterij Wijzer - Bereken Jouw Optimale Opslag</title>
+    <title>De Thuisbatterij Wijzer - Bereken Jouw Thuisbatterij Rendement 2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
     <style>
@@ -12,9 +12,32 @@
             font-family: 'Inter', sans-serif;
             background-color: #F7FAFC;
             color: #1A202C;
+            scroll-behavior: smooth;
         }
         h1, h2, h3 {
             font-family: 'Montserrat', sans-serif;
+        }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F7FAFC;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E2E8F0;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #CBD5E0;
+        }
+        /* Subtle animation for entries */
+        .animate-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 <script type="importmap">
@@ -23,7 +46,8 @@
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "chart.js": "https://esm.sh/chart.js@^4.5.1"
   }
 }
 </script>

@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, activeTab, hasResult }) => 
             onClick={() => onNavigate('home', 'merken')} 
             className="transition-colors hover:text-[#48BB78]"
           >
-            Vergelijken
+            Top 5 Merken
           </button>
           <button 
             onClick={() => onNavigate('home', hasResult ? 'results-section' : 'calculator-anchor')} 
@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, activeTab, hasResult }) => 
               : 'bg-[#48BB78]/10 text-[#48BB78] hover:bg-[#48BB78] hover:text-white'
             }`}
           >
-            <span>{hasResult ? 'Mijn Rapport' : 'Start Analyse'}</span>
+            <span>{hasResult ? 'Mijn Rapport' : 'Bereken Besparing'}</span>
             {!hasResult && (
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3" />
