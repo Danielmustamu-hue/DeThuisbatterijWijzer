@@ -69,7 +69,7 @@ export interface FAQ {
   blogSlug?: string;
 }
 
-export type AppTab = 'home' | 'kennisbank' | 'legal';
+export type AppTab = 'home' | 'kennisbank' | 'legal' | 'over-ons';
 
 export interface LegalContent {
   id: string;

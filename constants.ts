@@ -142,14 +142,79 @@ export const BLOG_POSTS: BlogPost[] = [
     excerpt: 'De ultieme gids over de onbalansmarkt. Leer hoe AI-software je batterij laat handelen op het net en de terugverdientijd verlaagt naar onder de 5 jaar.',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200',
     readingTime: '45 min',
-    content: `## De Geboorte van een Nieuwe Energiemarkt\n\nWelkom in de toekomst van het Nederlandse energienet. We bevinden ons op een historisch kantelpunt. De traditionele manier waarop we stroom verbruikten – passief afnemen van een groot nutsbedrijf – is definitief voorbij. In 2025 is uw woning niet langer alleen een plek om te wonen, maar een actieve speler op de wereldwijde energiemarkt. De drijvende kracht achter deze revolutie? **Onbalanssturing**.\n\nIn deze uitgebreide gids duiken we diep in de techniek en de economie van de onbalansmarkt. We leggen uit waarom netbeheerders bereid zijn u grof geld te betalen voor uw batterijcapaciteit, hoe slimme algoritmes het zware werk voor u doen, en waarom dit de sleutel is tot een terugverdientijd van minder dan 5 jaar.\n\n## Het Probleem: Een Net uit Balans\n\nOm te begrijpen hoe u geld kunt verdienen, moeten we eerst naar de bron van het probleem kijken. Het elektriciteitsnet in Nederland (en de rest van Europa) moet altijd exact op een frequentie van **50 Hertz** draaien. Als er meer stroom wordt opgewekt dan verbruikt, stijgt de frequentie. Als er meer wordt verbruikt dan opgewekt, daalt de frequentie. Beiden zijn gevaarlijk en kunnen leiden tot schade aan apparatuur of zelfs een totale blackout.\n\n### De Chaos van Duurzame Energie\nVroeger was de balans makkelijk te handhaven: als we meer stroom nodig hadden, gooiden we een extra schep kolen in de centrale. Vandaag de dag zijn we afhankelijk van de grillen van de natuur. Als er plotseling een zware wolk voor de zon schuift boven een grote zonnepark-regio, valt er in milliseconden gigantisch veel vermogen weg. Dit is wat we noemen: **onbalans**.\n\n## Wat is Onbalanssturing? (Technisch vs. Simpel)\n\nNetbeheerder **TenneT** heeft de taak om deze 50 Hertz te bewaken. Hiervoor kopen zij 'regelvermogen' in. Partijen die heel snel stroom kunnen toevoegen of afnemen, krijgen hiervoor een vergoeding die vele malen hoger ligt dan de reguliere stroomprijs.\n\n### Het Verschil met de EPEX (Day-ahead) Markt\nVeel mensen kennen de dynamische uurprijzen (EPEX). Deze prijzen worden een dag van tevoren vastgesteld op basis van voorspellingen. Onbalansprijzen daarentegen zijn **real-time**. Ze worden per kwartier bepaald en reageren op de werkelijke chaos op het net. Hierdoor kunnen onbalansprijzen soms pieken naar €1,00 per kWh of dalen naar -€0,50 per kWh, terwijl de reguliere prijs die dag misschien maar €0,20 was.\n\nOnbalanssturing is de techniek waarbij uw thuisbatterij razendsnel reageert op deze kwartierprijzen. Uw batterij 'luistert' naar TenneT en helpt het net te stabiliseren.\n\n## Het Verdienmodel: De Onbalans-Turbo op je Rendement\n\nHet verdienmodel van onbalanssturing rust op twee pijlers: **negatieve prijzen** en **piekvergoedingen**.\n\n### 1. Laden bij Overschot (Geld Toe!)\nWanneer er te veel windenergie is en het net overbelast raakt, dalen de onbalansprijzen diep in de min. Op dat moment krijgt u geld betaald om uw batterij op te laden. U helpt TenneT door stroom 'weg te poetsen'.\n\n### 2. Ontladen bij Tekort (De Hoofdprijs)\nWanneer de vraag onverwacht piekt, stijgen de prijzen naar extreme hoogtes. Uw batterij injecteert dan razendsnel stroom in het net. U verkoopt uw opgeslagen kWh's niet voor de normale prijs, maar tegen het onbalans-tarief.\n\n[Halt: Hier later affiliate link naar bol invoegen voor HomeWizard P1-meters om dit live te volgen]\n\n## De Kracht van EMS: Het Brein van de Installatie\n\nU hoeft natuurlijk niet zelf 24/7 naar grafieken te staren. Het geheim van een rendabel systeem zit in het **Energie Management Systeem (EMS)**. Dit is slimme software die is verbonden met uw batterij-omvormer.\n\n### AI en Algoritmes\nModerne EMS-software (zoals van Bliq, Zonneplan of speciale Victron-configuraties) maakt gebruik van kunstmatige intelligentie. Het algoritme kijkt naar:\n* De weersvoorspelling (wanneer gaan uw eigen panelen leveren?).\n* Uw historische verbruik (hoeveel stroom heeft u vanavond nodig?).\n* De live onbalansprijzen van TenneT.\n\nHet systeem maakt elke minuut een nieuwe berekening: "Is het nu slimmer om de zonnestroom te bewaren voor de koffiemachine vanavond, of kan ik de batterij nu beter leegtrekken voor €0,80 per kWh op de onbalansmarkt?"\n\n## Rendement: De ROI naar Onder de 5 Jaar\n\nLaten we eerlijk zijn: zonder onbalanssturing is de terugverdientijd van een thuisbatterij in Nederland vaak 7 tot 9 jaar. Met actieve onbalanssturing verandert alles.\n\n### Een Rekenvoorbeeld (10 kWh Systeem)\n* **Besparing via Zelfconsumptie:** €450 per jaar.\n* **Vermeden Terugleverkosten:** €300 per jaar.\n* **Netto Winst uit Onbalanshandel:** €400 - €700 per jaar.\n* **Totaal Jaarlijks Voordeel:** **€1.150 - €1.450**.\n\nBij een investering van ca. €6.000 (na BTW-teruggave/0%-tarief) ziet u dat de terugverdientijd daalt naar **4 tot 5 jaar**. Gezien de levensduur van 15+ jaar is dit een van de beste investeringen die u op dit moment kunt doen.\n\nWilt u weten wat uw specifieke winst is inclusief onbalanshandel? Onze Rendementscalculator simuleert dit scenario voor u.\n\n## Risico's & Slijtage: De Impact op de Levensduur\n\nEen veelgehoorde vraag is: "Slijt mijn batterij niet sneller door al dat handelen?" Het korte antwoord is: ja, hij maakt meer laadcycli, maar nee, het is geen probleem.\n\n### LFP-Technologie is de Redder\nOudere batterijen (zoals in uw laptop) kunnen ca. 500 keer laden. Moderne thuisbatterijen gebruiken **LiFePO4 (LFP)** technologie. Deze cellen kunnen 6.000 tot 10.000 keer volledig laden en ontladen voordat de capaciteit onder de 80% zakt. \n\nZelfs als uw EMS de batterij 1,5 keer per dag 'gebruikt' voor handel, komt u na 15 jaar pas op ca. 8.000 cycli. Bovendien zijn slimme algoritmes geprogrammeerd om de batterij te ontzien; ze zullen nooit handelen voor een paar cent winst als de 'slijtagekosten' hoger zijn.\n\n## Hardware Checklist: Wat Heb Je Nodig?\n\nOm mee te doen aan de onbalans-revolutie heb je meer nodig dan alleen een 'domme' accu.\n\n1. **Onbalans-compatibele Omvormer:** De omvormer moet snelle commando's (laden/ontladen binnen seconden) kunnen verwerken. Tesla, Victron en Huawei zijn hier marktleiders in.\n2. **Smart Meter Koppeling:** Een real-time uitlezing van je hoofdaansluiting. [Halt: Hier later affiliate link naar bol invoegen voor P1-dongles]\n3. **Stabiele Internetverbinding:** Bij voorkeur een LAN-kabel. Elke seconde vertraging is gemiste winst.\n4. **EMS-Abonnement:** De meeste software-aanbieders vragen een kleine maandelijkse fee (SaaS) voor de slimme aansturing. Dit verdient zich echter ruimschoot terug.\n\n## FAQ: Alles over Onbalans\n\n### Is onbalanssturing hetzelfde als dynamische prijzen?\nNee. Dynamische prijzen (EPEX) staan 24 uur van tevoren vast. Onbalansprijzen reageren op de actuele noodsituaties op het net en zijn veel extremer en winstgevender.\n\n### Kan ik dit ook zonder zonnepanelen?\nJa! Dit is het mooie van de huidige markt. Zelfs zonder zonnepanelen kunt u winst maken door simpelweg goedkope stroom van het net te trekken en dure stroom terug te leveren. De batterij wordt hiermee een op zichzelf staande investering.\n\n### Heb ik een specifiek energiecontract nodig?\nJa, u heeft een contract nodig bij een dynamische leverancier die handelen op de onbalansmarkt ondersteunt of toestaat via een externe aggregator.\n\n## Conclusie: De Vroege Vogel Winst\n\nOnbalanssturing is de 'turbo' op de thuisbatterij. Het lost een maatschappelijk probleem op (netcongestie) en beloont de burger die hieraan bijdraagt. In een tijd waarin de salderingsregeling onder druk staat, is dit het nieuwe fundament onder uw duurzame rendement. Wacht niet tot de massa beweegt; de grootste winsten op de onbalansmarkt worden nu behaald door de pioniers.\n\n[Halt: Hier later affiliate link naar bol invoegen voor energie-displays]\n\nBent u klaar om uw huis te transformeren in een winstgevende energiecentrale? Gebruik onze Rendementscalculator voor een volledige simulatie en vergelijk direct de beste installateurs die deze techniek aanbieden.\n\n[Start de Rendementscalculator]`
+    content: `## De Geboorte van een Nieuwe Energiemarkt\n\nWelkom in de toekomst van het Nederlandse energienet. We bevinden ons op een historisch kantelpunt.\n\n[Start de Rendementscalculator]`
   }
 ];
 
 export const LEGAL_PAGES: Record<string, LegalContent> = {
-  privacy: { id: 'privacy', title: 'Privacybeleid', content: 'Wij gaan uiterst vertrouwelijk om met uw data conform de AVG richtlijnen van 2025.' },
-  cookies: { id: 'cookies', title: 'Cookieverklaring', content: 'Wij gebruiken cookies om de rekenervaring te verbeteren en affiliate links te meten.' },
-  voorwaarden: { id: 'voorwaarden', title: 'Voorwaarden', content: 'Onze adviezen zijn indicatief en gebaseerd op de markt van 2025.' }
+  privacy: { 
+    id: 'privacy', 
+    title: 'Privacyverklaring', 
+    content: `
+      <div class="prose max-w-none">
+        <p class="text-sm text-gray-400 mb-8 uppercase tracking-widest font-black">Laatst bijgewerkt: December 2025</p>
+        
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">1. Onze Toewijding aan uw Privacy</h2>
+        <p>Bij <strong>De Thuisbatterij Wijzer</strong> begrijpen we dat uw energiegegevens persoonlijk zijn. In het kader van de AVG-wetgeving van 2025 leggen we hieronder transparant uit hoe we uw data beschermen en gebruiken om u te helpen bij uw energietransitie.</p>
+        
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">2. Gegevens die wij Verzamelen</h2>
+        <p>Via onze interactieve widgets en calculators verzamelen wij de volgende gegevenspunten:</p>
+        <ul class="list-disc pl-6 space-y-2 mb-8">
+          <li><strong>Locatiegegevens:</strong> Uw postcode om regionale subsidiemogelijkheden en installatiebeschikbaarheid te bepalen.</li>
+          <li><strong>Energieprofiel:</strong> Uw jaarlijks stroomverbruik en de capaciteit van uw huidige zonnestroomsysteem.</li>
+          <li><strong>Contactgegevens:</strong> Uw e-mailadres wanneer u een rendementsrapport aanvraagt of een offertevergelijking start.</li>
+        </ul>
+
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">3. Delen met Installatiepartners</h2>
+        <p>Ons platform fungeert als intermediair. Om u van concrete prijsopgaven te voorzien, delen wij uw aanvraaggegevens met <strong>maximaal drie (3) geselecteerde en gecertificeerde installatiepartners</strong>. Deze partners zijn contractueel verplicht uw data uitsluitend te gebruiken voor het opstellen van de door u gevraagde offerte.</p>
+
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">4. Opslag en Beveiliging</h2>
+        <p>Wij maken gebruik van moderne encryptietechnieken om uw data veilig op te slaan. Uw gegevens worden niet langer bewaard dan strikt noodzakelijk voor het offerteproces (maximaal 12 maanden na de laatste interactie), tenzij u expliciet toestemming geeft voor een langere bewaartermijn voor updates over de energiemarkt.</p>
+      </div>
+    ` 
+  },
+  cookies: { 
+    id: 'cookies', 
+    title: 'Cookiebeleid', 
+    content: `
+      <div class="prose max-w-none">
+        <p class="text-sm text-gray-400 mb-8 uppercase tracking-widest font-black">Transparantie in Tracking</p>
+        
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">1. Functionele Cookies</h2>
+        <p>Deze cookies zijn essentieel voor de werking van onze website. Ze zorgen er bijvoorbeeld voor dat de data die u invoert in de Rendementscalculator behouden blijft terwijl u door de verschillende stappen van de analyse navigeert.</p>
+        
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">2. Analytische Cookies</h2>
+        <p>Wij gebruiken geanonimiseerde analytische instrumenten om te begrijpen hoe bezoekers onze gidsen lezen. Deze data is volledig geaggregeerd en kan niet worden herleid naar een individuele gebruiker.</p>
+
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">3. Affiliate Marketing & Partners</h2>
+        <p>Om ons platform gratis toegankelijk te houden voor consumenten, maken wij gebruik van affiliate-marketingprogramma's (zoals die van <strong>Bol.com, Coolblue en Amazon</strong>). Wanneer u op een productlink klikt in onze gidsen, kan er een 'affiliate cookie' worden geplaatst. Dit stelt ons in staat een kleine commissie te ontvangen wanneer u een aankoop doet, zonder dat dit voor u extra kosten met zich meebrengt.</p>
+
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">4. Beheer uw Voorkeuren</h2>
+        <p>U kunt via uw browserinstellingen alle cookies weigeren of verwijderen. Let op: de interactieve calculators kunnen hierdoor minder accuraat functioneren.</p>
+      </div>
+    ` 
+  },
+  voorwaarden: { 
+    id: 'voorwaarden', 
+    title: 'Algemene Voorwaarden', 
+    content: `
+      <div class="prose max-w-none">
+        <p class="text-sm text-gray-400 mb-8 uppercase tracking-widest font-black">Juridisch Kader</p>
+        
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">1. Status van het Platform</h2>
+        <p>De Thuisbatterij Wijzer (dethuisbatterijwijzer.nl) is een <strong>onafhankelijk informatieplatform</strong>. Wij zijn nadrukkelijk géén installatiebedrijf, verzekeraar of energieproducent.</p>
+        
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">2. Indicatieve Berekeningen</h2>
+        <p>De berekeningen, terugverdientijden en rendementsprognoses gegenereerd door onze tools zijn gebaseerd op gemiddelde marktprijzen en prognoses voor de energiemarkt van 2025. Deze resultaten zijn <strong>indicatief</strong>; er kunnen geen juridische rechten aan worden ontleend. Een definitief financieel plan kan alleen worden opgesteld door een gecertificeerd adviseur na een schouw op locatie.</p>
+
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">3. Uitsluiting van Aansprakelijkheid</h2>
+        <p>Wij selecteren onze installatiepartners zorgvuldig op basis van certificering en reviews. Echter, de uiteindelijke overeenkomst voor aankoop en installatie vindt plaats tussen u en de externe installateur. De Thuisbatterij Wijzer aanvaardt geen enkele aansprakelijkheid voor schade, gebreken of geschillen voortvloeiend uit de uitvoering van werkzaamheden door deze derden.</p>
+
+        <h2 class="text-3xl font-black mb-6 italic uppercase tracking-tighter">4. Intellectueel Eigendom</h2>
+        <p>De unieke rekenmodellen, teksten en visuele gidsen op dit platform zijn eigendom van De Thuisbatterij Wijzer en mogen niet zonder schriftelijke toestemming worden gereproduceerd.</p>
+      </div>
+    ` 
+  }
 };
 
 export const ADVICE_STEPS: AdviceStep[] = [

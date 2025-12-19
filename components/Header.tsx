@@ -2,8 +2,8 @@
 import React from 'react';
 
 interface HeaderProps {
-  onNavigate: (tab: 'home' | 'kennisbank', anchor?: string) => void;
-  activeTab: 'home' | 'kennisbank';
+  onNavigate: (tab: 'home' | 'kennisbank' | 'over-ons', anchor?: string) => void;
+  activeTab: 'home' | 'kennisbank' | 'over-ons';
   hasResult: boolean;
 }
 
@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, activeTab, hasResult }) => 
             </svg>
           </div>
           <span className="text-xl font-extrabold text-[#1A202C] tracking-tight">
-            Batterij Rendement Check
+            De Thuisbatterij Wijzer
           </span>
         </div>
         
@@ -36,10 +36,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, activeTab, hasResult }) => 
             Kennisbank
           </button>
           <button 
-            onClick={() => onNavigate('home', 'merken')} 
-            className="transition-colors hover:text-[#48BB78]"
+            onClick={() => onNavigate('over-ons')} 
+            className={`transition-colors hover:text-[#48BB78] ${activeTab === 'over-ons' ? 'text-[#48BB78]' : ''}`}
           >
-            Top 5 Merken
+            Over Ons
           </button>
           <button 
             onClick={() => onNavigate('home', hasResult ? 'results-section' : 'calculator-anchor')} 
@@ -58,12 +58,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, activeTab, hasResult }) => 
           </button>
         </nav>
 
-        <div className="md:hidden">
-            <button className="text-gray-900 p-2" onClick={() => onNavigate('home', 'calculator-anchor')}>
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            </button>
+        <div className="md:hidden text-gray-900 font-bold text-xs uppercase tracking-widest">
+            Menu
         </div>
       </div>
     </header>
