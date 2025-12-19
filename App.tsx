@@ -11,7 +11,7 @@ import TechnicalQuiz from './components/TechnicalQuiz';
 import FAQSection from './components/FAQSection';
 import AboutUs from './components/AboutUs';
 import { CalculationResult, BlogPost, AppTab } from './types';
-import { RECOMMENDED_PRODUCTS, FAQS, BLOG_POSTS, TARGET_GROUPS, TOP_5_BRANDS, LEGAL_PAGES } from './constants';
+import { BLOG_POSTS, TARGET_GROUPS, TOP_5_BRANDS, LEGAL_PAGES } from './constants';
 
 const App: React.FC = () => {
   const [result, setResult] = useState<(CalculationResult & { postalCode: string }) | null>(null);
@@ -20,11 +20,13 @@ const App: React.FC = () => {
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
   const [activeLegal, setActiveLegal] = useState<string | null>(null);
 
+  // Navigatie-functie die rekening houdt met ankers en tabs
   const navigateTo = (tab: AppTab, anchor?: string) => {
     setActiveTab(tab);
     setSelectedBlog(null);
     setActiveLegal(tab === 'legal' ? anchor || 'privacy' : null);
     
+    // Als we naar home gaan met een anker (bijv. calculator)
     if (tab === 'home' && anchor) {
       setTimeout(() => {
         const element = document.getElementById(anchor);
@@ -94,11 +96,6 @@ const App: React.FC = () => {
         if (trimmedLine.startsWith('## ')) return <h2 key={`${blockIdx}-${i}`} className="text-3xl font-black mt-16 mb-8 text-gray-900 border-l-8 border-[#48BB78] pl-8 uppercase tracking-tighter leading-none italic">{trimmedLine.replace('## ', '')}</h2>;
         if (trimmedLine.startsWith('### ')) return <h3 key={`${blockIdx}-${i}`} className="text-2xl font-bold mt-10 mb-6 text-gray-800 italic">{trimmedLine.replace('### ', '')}</h3>;
         if (trimmedLine.startsWith('* ')) return <li key={`${blockIdx}-${i}`} className="ml-8 mb-3 text-gray-600 list-disc font-medium text-lg leading-relaxed">{trimmedLine.replace('* ', '')}</li>;
-        if (line.includes('[Halt:')) return <div key={`${blockIdx}-${i}`} className="my-8 p-6 bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl text-center"><p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Advertentie / Affiliate Ruimte</p><p className="text-sm italic text-gray-500 mt-2">Hier wordt binnenkort een relevante aanbieding getoond.</p></div>;
-        if (line.includes('Rendementscalculator')) {
-          const parts = line.split('Rendementscalculator');
-          return <p key={`${blockIdx}-${i}`} className="mb-8 text-gray-600 leading-relaxed text-xl font-normal">{parts[0]}<button onClick={() => navigateTo('home', 'calculator-anchor')} className="text-[#48BB78] font-black underline decoration-4 underline-offset-4 hover:text-black transition-colors">Rendementscalculator</button>{parts.length > 1 ? parts.slice(1).join('Rendementscalculator') : ''}</p>;
-        }
         if (!trimmedLine) return null;
         return <p key={`${blockIdx}-${i}`} className="mb-8 text-gray-600 leading-relaxed text-xl font-normal" dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-900">$1</strong>') }}></p>;
       });
@@ -107,11 +104,12 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F7FAFC] selection:bg-[#48BB78]/30 selection:text-black">
-      <Header onNavigate={navigateTo} activeTab={activeTab as any} hasResult={!!result} />
+      <Header onNavigate={navigateTo} activeTab={activeTab} hasResult={!!result} />
 
       <main className="flex-grow">
         {activeTab === 'home' && (
-          <>
+          <div className="animate-in">
+            {/* Hero Section */}
             <section id="hero" className="relative pt-24 pb-32 overflow-hidden bg-[#F7FAFC]">
               <div className="max-w-7xl mx-auto px-4 relative z-10 text-center lg:text-left">
                 <div className="flex flex-col lg:flex-row items-center gap-16">
@@ -124,8 +122,8 @@ const App: React.FC = () => {
                       Verzilver Je Zonnestroom <br />
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#48BB78] to-[#38a169]">& Stop Terugleverkosten</span>
                     </h1>
-                    <p className="text-2xl text-gray-500 mb-12 max-w-2xl leading-relaxed font-medium">
-                      Ontdek hoe een thuisbatterij i.c.m. een dynamisch contract tot €950 per jaar bespaart. Bereken direct je rendement.
+                    <p className="text-2xl text-gray-500 mb-12 max-w-2xl leading-relaxed font-medium italic">
+                      Ontdek hoe een thuisbatterij i.c.m. een dynamisch contract tot €950 per jaar bespaart. Bereken direct uw rendement.
                     </p>
                     <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6">
                       <button onClick={() => navigateTo('home', 'calculator-anchor')} className="bg-[#1A202C] text-white px-12 py-6 rounded-[2.5rem] font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-2xl hover:translate-y-[-2px]">Start Systeem Analyse</button>
@@ -139,6 +137,7 @@ const App: React.FC = () => {
               </div>
             </section>
 
+            {/* Top 5 Brands */}
             <section id="merken" className="py-32 bg-white">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="text-center mb-20">
@@ -159,6 +158,7 @@ const App: React.FC = () => {
                 </div>
             </section>
 
+            {/* Simulators */}
             <section className="py-32 bg-gray-50">
               <div className="max-w-7xl mx-auto px-4">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
@@ -168,6 +168,7 @@ const App: React.FC = () => {
               </div>
             </section>
 
+            {/* Technical Context */}
             <section id="advies" className="py-32 bg-[#F7FAFC]">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
@@ -200,6 +201,7 @@ const App: React.FC = () => {
                 </div>
             </section>
 
+            {/* Results Display */}
             {result && (
               <section id="results-section" className="py-32 bg-white scroll-mt-24 border-y border-gray-50">
                 <div className="max-w-7xl mx-auto px-4">
@@ -219,11 +221,14 @@ const App: React.FC = () => {
                         <div className="bg-white rounded-[4rem] p-12 border-8 border-[#ED8936] shadow-3xl sticky top-28">
                           <h2 className="text-3xl font-black mb-8 italic text-gray-900 uppercase">Verzilver Winst ⚡️</h2>
                           {leadSubmitted ? (
-                            <div className="text-center py-16 bg-[#48BB78]/5 rounded-[3rem] border-2 border-[#48BB78]/20"><p className="font-black text-[#48BB78] uppercase">Verzonden!</p></div>
+                            <div className="text-center py-16 bg-[#48BB78]/5 rounded-[3rem] border-2 border-[#48BB78]/20 animate-in">
+                                <p className="font-black text-[#48BB78] uppercase mb-2 text-xl">Gelukt!</p>
+                                <p className="text-gray-500 font-medium">U ontvangt binnen 24 uur reactie.</p>
+                            </div>
                           ) : (
                             <form onSubmit={(e) => {e.preventDefault(); setLeadSubmitted(true);}} className="space-y-6">
                               <input type="text" placeholder="Postcode" className="w-full p-6 rounded-[2rem] bg-gray-50 border-2 border-transparent focus:border-[#ED8936] outline-none font-bold text-lg" required />
-                              <input type="email" placeholder="E-mail" className="w-full p-6 rounded-[2rem] bg-gray-50 border-2 border-transparent focus:border-[#ED8936] outline-none font-bold text-lg" required />
+                              <input type="email" placeholder="E-mail voor rapport" className="w-full p-6 rounded-[2rem] bg-gray-50 border-2 border-transparent focus:border-[#ED8936] outline-none font-bold text-lg" required />
                               <button className="w-full bg-[#ED8936] text-white font-black py-8 rounded-[2.5rem] uppercase tracking-widest text-xs shadow-2xl transform hover:scale-[1.03] active:scale-95 transition-all">Vergelijk 3 installateurs &rarr;</button>
                             </form>
                           )}
@@ -234,20 +239,21 @@ const App: React.FC = () => {
               </section>
             )}
 
+            {/* Knowledge Base Teaser */}
             <section className="py-32 bg-[#1A202C] text-white">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="text-center mb-20">
                         <h2 className="text-6xl font-black tracking-tighter mb-6 italic uppercase">Kennisbank: Masterclass 2025</h2>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                        {BLOG_POSTS.map((post) => (
+                        {BLOG_POSTS.slice(0, 3).map((post) => (
                             <div key={post.id} className="group cursor-pointer bg-white/5 p-4 rounded-[3rem] hover:bg-white/10 transition-all" onClick={() => openBlog(post.slug)}>
                                 <div className="aspect-[16/10] rounded-[2.2rem] overflow-hidden mb-8 shadow-2xl">
-                                    <img src={post.imageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0" alt={post.title} />
+                                    <img src={post.imageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt={post.title} />
                                 </div>
                                 <div className="px-4 pb-4">
-                                  <h3 className="text-2xl font-bold mb-4 italic uppercase">{post.title}</h3>
-                                  <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-widest">Lees Meer &rarr;</span>
+                                  <h3 className="text-2xl font-bold mb-4 italic uppercase leading-none">{post.title}</h3>
+                                  <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-widest">Lees De Gids &rarr;</span>
                                 </div>
                             </div>
                         ))}
@@ -256,7 +262,7 @@ const App: React.FC = () => {
             </section>
 
             <FAQSection onCtaClick={() => navigateTo('home', 'calculator-anchor')} />
-          </>
+          </div>
         )}
 
         {activeTab === 'kennisbank' && (
@@ -274,20 +280,21 @@ const App: React.FC = () => {
                   </div>
                 </article>
               ) : (
-                <>
-                  <div className="mb-32"><h1 className="text-6xl md:text-8xl font-black mb-10 text-gray-900 tracking-tighter text-center uppercase italic">Expert <br />Leesgidsen</h1></div>
+                <div className="animate-in">
+                  <div className="mb-32 text-center"><h1 className="text-6xl md:text-8xl font-black mb-10 text-gray-900 tracking-tighter uppercase italic">Expert <br />Leesgidsen</h1></div>
                   <div className="grid grid-cols-1 gap-24">
                     {BLOG_POSTS.map(post => (
                       <div key={post.id} className="group cursor-pointer flex flex-col md:flex-row gap-16 items-center border-b-2 border-gray-50 pb-24" onClick={() => openBlog(post.slug)}>
                         <div className="md:w-[500px] h-[350px] rounded-[4rem] overflow-hidden shrink-0 shadow-2xl"><img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0" /></div>
                         <div className="flex-1 text-center md:text-left">
-                          <h2 className="text-4xl font-black mb-8 group-hover:text-[#48BB78] italic uppercase">{post.title}</h2>
+                          <h2 className="text-4xl font-black mb-8 group-hover:text-[#48BB78] italic uppercase leading-none tracking-tighter">{post.title}</h2>
+                          <p className="text-gray-500 mb-6 font-medium italic">{post.excerpt}</p>
                           <span className="text-[10px] font-black text-[#48BB78] uppercase">Lees Meer &rarr;</span>
                         </div>
                       </div>
                     ))}
                   </div>
-                </>
+                </div>
               )}
             </div>
           </section>

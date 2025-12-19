@@ -1,9 +1,10 @@
 
 import React from 'react';
+import { AppTab } from '../types';
 
 interface HeaderProps {
-  onNavigate: (tab: 'home' | 'kennisbank' | 'over-ons', anchor?: string) => void;
-  activeTab: 'home' | 'kennisbank' | 'over-ons';
+  onNavigate: (tab: AppTab, anchor?: string) => void;
+  activeTab: AppTab;
   hasResult: boolean;
 }
 

@@ -59,8 +59,8 @@ const AboutUs: React.FC<AboutUsProps> = ({ onCtaClick }) => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d={val.icon} />
                 </svg>
               </div>
-              <h3 className="text-xl font-black italic uppercase text-gray-900 mb-4 tracking-tight">{val.title}</h3>
-              <p className="text-sm text-gray-500 font-medium leading-relaxed">{val.desc}</p>
+              <h3 className="text-xl font-black italic uppercase text-gray-900 mb-4 tracking-tight leading-none">{val.title}</h3>
+              <p className="text-sm text-gray-500 font-medium leading-relaxed italic">{val.desc}</p>
             </div>
           ))}
         </div>
@@ -68,13 +68,13 @@ const AboutUs: React.FC<AboutUsProps> = ({ onCtaClick }) => {
         {/* Verdienmodel Sectie */}
         <div className="bg-[#1A202C] text-white p-16 rounded-[4rem] border-r-[16px] border-[#ED8936] shadow-4xl overflow-hidden relative mb-24">
           <div className="relative z-10">
-            <div className="inline-block px-4 py-1 rounded-full bg-[#ED8936]/20 text-[#ED8936] text-[10px] font-black uppercase tracking-widest mb-6">
+            <div className="inline-block px-4 py-1 rounded-full bg-[#ED8936]/20 text-[#ED8936] text-[10px] font-black uppercase tracking-widest mb-6 italic">
               Transparantie in 2025
             </div>
-            <h2 className="text-3xl md:text-4xl font-black italic uppercase mb-8 tracking-tighter">
+            <h2 className="text-3xl md:text-4xl font-black italic uppercase mb-8 tracking-tighter leading-none">
               Hoe wij dit platform <br />gratis houden
             </h2>
-            <div className="space-y-6 text-gray-400 font-medium text-lg">
+            <div className="space-y-6 text-gray-400 font-medium text-lg italic">
               <p>
                 De Thuisbatterij Wijzer is voor consumenten 100% gratis te gebruiken. Om de kwaliteit van onze tools en gidsen te waarborgen, maken we gebruik van een transparant model:
               </p>
