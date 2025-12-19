@@ -1,5 +1,5 @@
 
-import { Product, TargetGroupInfo, BrandComparison, AdviceStep, FAQ, BlogPost, LegalContent } from './types';
+import { Product, TargetGroupInfo, BrandComparison, AdviceStep, FAQ, BlogPost, LegalContent, TechnicalSpec } from './types';
 
 export const COLORS = {
   primary: '#1A202C',
@@ -7,6 +7,16 @@ export const COLORS = {
   ecoMint: '#48BB78',
   actionOrange: '#ED8936',
 };
+
+export const TECHNICAL_SPECS: TechnicalSpec[] = [
+  { label: 'Basis Capaciteit', tesla: '13.5 kWh', alpha: '5.0 kWh+', victron: 'Variabel', sessy: '5.0 kWh', huawei: '5.0 kWh+' },
+  { label: 'Batterij Chemie', tesla: 'LFP (Cobalt-vrij)', alpha: 'LFP (LiFePO4)', victron: 'LFP / Lead', sessy: 'LFP', huawei: 'LFP' },
+  { label: 'Type Koppeling', tesla: 'DC (Hybride)', alpha: 'AC of DC', victron: 'AC of DC', sessy: 'AC (Retrofit)', huawei: 'DC (HV)' },
+  { label: 'Ontladingsdiepte', tesla: '100%', alpha: '95%', victron: '95-100%', sessy: '95%', huawei: '100%' },
+  { label: 'Laadcycli', tesla: '6.000+', alpha: '8.000+', victron: '6.000-10.000', sessy: '6.000+', huawei: '6.000+' },
+  { label: 'Garantie (Jaren)', tesla: '10 jaar', alpha: '10 jaar', victron: '5 - 10 jaar', sessy: '10 jaar', huawei: '10 jaar' },
+  { label: 'Onbalans-klaar', tesla: 'Ja (Native)', alpha: 'Via EMS', victron: 'Volledig', sessy: 'Ja (P1)', huawei: 'Via Dongle' },
+];
 
 export const TARGET_GROUPS: TargetGroupInfo[] = [
   { 
@@ -51,7 +61,7 @@ export const RECOMMENDED_PRODUCTS: Product[] = [
     description: "De eerste stap naar inzicht. Onmisbaar om te bepalen hoeveel overschot je echt hebt voordat je een accu koopt.",
     imageUrl: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&q=80&w=800', 
     partnerUrl: 'https://www.bol.com/nl/nl/s/?searchtext=homewizard+p1+meter', 
-    partnerName: 'Bekijk dagaanbieding', // Gevraagde copy voor bol
+    partnerName: 'Bekijk dagaanbieding',
   },
   {
     id: 'coolblue-accu',
@@ -60,68 +70,25 @@ export const RECOMMENDED_PRODUCTS: Product[] = [
     description: "Kies voor de zorgeloze installatieservice van Coolblue. Volledig ontzorgd van advies tot aan de meterkast.",
     imageUrl: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&q=80&w=800',
     partnerUrl: 'https://www.coolblue.nl/zonnepanelen/thuisbatterij',
-    partnerName: 'Check huidige voorraad', // Gevraagde copy voor Coolblue
+    partnerName: 'Check huidige voorraad',
   }
 ];
 
 export const FAQS: FAQ[] = [
-  { q: "Wat is de terugleverboete precies?", a: "Dit zijn kosten die energieleveranciers in rekening brengen voor elke kWh die u teruglevert aan het net. Een thuisaccu voorkomt dit door de stroom zelf op te slaan.", blogSlug: "rendement-thuisbatterij-2025" },
-  { q: "Hoeveel bespaar ik met een dynamisch contract?", a: "Gemiddeld €300 tot €600 extra per jaar. U koopt stroom in bij negatieve prijzen en verbruikt uw eigen stroom tijdens dure avondpieken.", blogSlug: "energiecontract-kiezen-2025" },
-  { q: "Is een thuisbatterij brandgevaarlijk?", a: "Moderne LFP-batterijen (Lithium IJzerfosfaat) zijn extreem veilig en kunnen niet in brand vliegen door oververhitting. Dit is de standaard in 2025.", blogSlug: "optimale-capaciteit" },
-  { q: "Wat kost de installatie gemiddeld?", a: "De installatiekosten variëren tussen de €1.500 en €2.500. Wij adviseren altijd om 3 offertes te vergelijken om te besparen op arbeidskosten.", blogSlug: "rendement-thuisbatterij-2025" },
-  { q: "Kan ik subsidie krijgen op een accu?", a: "Er is geen landelijke aanschafsubsidie, maar u profiteert van 0% BTW. Bedrijven en VvE's hebben wel specifieke potjes zoals EIA and SCE.", blogSlug: "wetgeving-en-salderen-2027" },
-  { q: "Hoe lang gaat een Tesla Powerwall mee?", a: "De Powerwall 3 heeft een garantie van 10 jaar en is ontworpen om minimaal 15 tot 20 jaar mee te gaan bij dagelijks gebruik.", blogSlug: "technische-gids-onbalanssturing" },
-  { q: "Moet ik mijn meterkast uitbreiden?", a: "Ja, meestal is een extra groep en een communicatiemodule (smart meter) nodig. Een gecertificeerd installateur regelt dit volledig.", blogSlug: "optimale-capaciteit" },
-  { q: "Werkt een accu ook bij stroomuitval?", a: "Alleen als u kiest voor een systeem met 'backup' of 'off-grid' functionaliteit, zoals de systemen van Victron of de Tesla Powerwall.", blogSlug: "optimale-capaciteit" },
-  { q: "Wat is onbalanssturing?", a: "Dit is het automatisch laden en ontladen van uw accu op basis van de behoeften van het landelijke stroomnet. U krijgt hiervoor een vergoeding per actie.", blogSlug: "technische-gids-onbalanssturing" },
-  { q: "Wanneer is de beste tijd om te kopen?", a: "Nu. In 2026 verwachten we een enorme piek in aanvragen door het einde van salderen, wat de wachttijden en installatieprijzen zal opdrijven.", blogSlug: "wetgeving-en-salderen-2027" }
+  { q: "Wat is de terugleverboete precies?", a: "Dit zijn kosten die energieleveranciers in rekening brengen voor elke kWh die u teruglevert aan het net. Een thuisaccu voorkomt dit door de stroom zelf op te slaan.", blogSlug: "vergelijking-thuisbatterij-2025" },
+  { q: "Hoeveel bespaar ik met een dynamisch contract?", a: "Gemiddeld €300 tot €600 extra per jaar. U koopt stroom in bij negatieve prijzen en verbruikt uw eigen stroom tijdens dure avondpieken.", blogSlug: "vergelijking-thuisbatterij-2025" },
+  { q: "Wanneer stopt het salderen?", a: "De politieke besluitvorming wijst op een volledige afbouw vanaf 2027. Wachten met een accu kost nu al geld door terugleverkosten.", blogSlug: "saldering-2027-politiek" }
 ];
 
 export const BLOG_POSTS: BlogPost[] = [
   {
-    id: 'b1',
-    slug: 'rendement-thuisbatterij-2025',
-    title: 'Het Rendement van de Thuisbatterij in 2025: Een Diepgaande Analyse',
-    excerpt: 'Waarom de rekensom voor een thuisaccu in 2025 drastisch is veranderd door terugleverkosten en netcongestie.',
-    imageUrl: 'https://images.unsplash.com/photo-1509391366360-fe5bb58583bb?auto=format&fit=crop&q=80&w=1200',
-    readingTime: '25 min',
-    content: `## Inleiding: Het Einde van Gratis Terugleveren\n\nDe Nederlandse energiemarkt bevindt zich in 2025 op een historisch keerpunt. Waar zonnepanelen voorheen een gegarandeerde 'geldmachine' waren, worden eigenaren nu geconfronteerd met complexe tariefstructuren en de beruchte **terugleverkosten**. In deze leesgids van 2500+ woorden duiken we in de harde cijfers van rendement.\n\n### De Kosten van Niets Doen\nWie in 2025 zonnestroom teruglevert zonder accu, betaalt gemiddeld €0,15 per kWh aan de leverancier. Bij een overschot van 3000 kWh praat u over een jaarlijkse 'boete' van €450. Een thuisaccu elimineert deze kosten direct.\n\n### Zelfconsumptie: De Nieuwe KPI\nHet doel in 2025 is niet meer 'zo veel mogelijk opwekken', maar 'zo min mogelijk terugleveren'. Door uw zelfconsumptie te verhogen van 30% naar 75% met een systeem zoals de AlphaESS, bespaart u honderden euro's op inkoop.\n\n### Vergelijk & Bespaar\nHet hoogste rendement behaalt u door hardware te combineren met het juiste contract. \n\n[Bestel de winnaar bij bol]\n\n### Conclusie\nEen thuisbatterij is in 2025 de enige manier om de regie over uw eigen energie-opwek terug te pakken. Wacht niet tot de drukte van 2027.`
-  },
-  {
-    id: 'b2',
-    slug: 'energiecontract-kiezen-2025',
-    title: 'Dynamische Energiecontracten: De Turbo voor uw Thuisaccu',
-    excerpt: 'Waarom een vast contract u geld kost en hoe een dynamisch contract uw accu tot een actieve inkomstenbron maakt.',
-    imageUrl: 'https://images.unsplash.com/photo-1551288049-bbda38a5f9a2?auto=format&fit=crop&q=80&w=1200',
-    readingTime: '22 min',
-    content: `## De Revolutie van de Uurprijs\n\nIn 2025 is een thuisaccu zonder dynamisch contract als een Ferrari zonder benzine. Om echt rendement te maken, moet u kunnen inspelen op de prijsschommelingen van de EPEX SPOT beurs.\n\n### Laden bij Negatieve Prijzen\nOp zonnige of winderige middagen is de stroomprijs vaak negatief. Dit betekent dat u geld krijgt om uw batterij vol te laden. Zonder dynamisch contract mist u deze kans volledig.\n\n### Ontladen tijdens de Piek\nTussen 18:00 en 21:00 piekt de prijs. Uw accu neemt op dat moment de stroomvoorziening van uw huis over, waardoor u de dure inkoop vermijdt.\n\n[Bekijk Amazon's beste deal]\n\n### Overstappen via Experts\nVia onze partners vergelijkt u de beste dynamische aanbieders van 2025. Let hierbij vooral op de inkoopvergoeding en de kwaliteit van de app-koppeling met uw batterij.`
-  },
-  {
-    id: 'b3',
-    slug: 'wetgeving-en-salderen-2027',
-    title: 'Wetgeving en Salderen: Wat verandert er na 2027?',
-    excerpt: 'Een overzicht van de politieke besluiten en de impact op de terugverdientijd van uw investering.',
-    imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
-    readingTime: '20 min',
-    content: `## De Politieke Roadmap\n\nDe afbouw van de salderingsregeling is definitief. Vanaf 2027 krijgt u nog maar een fractie van de stroomprijs terug voor uw overschot. Dit maakt de thuisaccu van een 'optie' naar een 'noodzaak'.\n\n### 0% BTW Regeling\nMaak nu nog gebruik van de 0% BTW regeling voor energiebesparende maatregelen. Dit scheelt direct 21% op uw investering.\n\n### Toekomstbestendigheid\nKies voor een systeem dat 'onbalanssturing' ondersteunt. Hiermee bent u voorbereid op een markt waarin u betaald krijgt voor het stabiliseren van het net.\n\n[Koop met de beste service bij Coolblue]`
-  },
-  {
-    id: 'b4',
-    slug: 'optimale-capaciteit',
-    title: 'Hoeveel kWh heeft u echt nodig? De Gids voor Maatwerk.',
-    excerpt: 'Voorkom over-investering. Wij leggen uit hoe u de ideale capaciteit berekent voor uw woning of bedrijf.',
-    imageUrl: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=1200',
-    readingTime: '28 min',
-    content: `## De Goudlokje-zone van Energie-opslag\n\nEen batterij die te groot is, verdient zichzelf nooit terug. Een batterij die te klein is, laat winst liggen. Hoe vindt u de balans?\n\n### De 1:1.5 Regel\nVoor elke 1.000 Wp aan zonnepanelen adviseren wij 1.5 kWh aan opslagcapaciteit. Voor 10 panelen (ca 4.000 Wp) is een 6 kWh accu dus de ideale basis.\n\n### Zakelijke Opslag\nVoor bedrijven draait het om Peak Shaving. Een accu van 50 kWh kan het vastrecht-tarief met duizenden euro's per jaar verlagen.\n\n[Check huidige voorraad bij Coolblue]`
-  },
-  {
-    id: 'technische-gids-onbalanssturing',
-    slug: 'technische-gids-onbalanssturing',
-    title: 'Onbalanssturing: Geld verdienen terwijl u slaapt',
-    excerpt: 'De meest geavanceerde techniek om uw terugverdientijd te verkorten naar minder dan 5 jaar.',
-    imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1200',
-    readingTime: '30 min',
-    content: `## Handelen op de Energiemarkt\n\nOnbalanssturing is de volgende stap in de energietransitie. Uw accu helpt de netbeheerder TenneT om het net op 50Hz te houden.\n\n### Automatische Software\nU hoeft zelf niets te doen. Slimme algoritmes van systemen zoals de Tesla Powerwall handelen automatisch op de onbalansmarkt. Dit levert gemiddeld €1,50 tot €3,00 per dag op.\n\n### Hardware Eisen\nLet op dat uw omvormer 'smart grid ready' is. Niet alle budget-systemen ondersteunen deze geavanceerde sturing.\n\n[Bestel de winnaar bij bol]`
+    id: 'g1',
+    slug: 'vergelijking-thuisbatterij-2025',
+    title: 'De Ultieme Thuisbatterij Vergelijking 2025: Welk Systeem Past bij Jou?',
+    excerpt: 'Een technisch diepgaande analyse van de markt in 2025. Vergelijk Tesla, AlphaESS, Victron, Sessy en Huawei op rendement en techniek.',
+    imageUrl: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&q=80&w=1200',
+    readingTime: '45 min',
+    content: `## Introductie: 2025 als het Kanteljaar voor de Thuisbatterij\n\nIn 2025 is de Nederlandse energiemarkt definitief veranderd. Waar we voorheen spraken over de thuisbatterij als een 'leuke gadget voor de vroege vogels', is het nu een essentieel onderdeel geworden van een rendabel huishouden. De reden? Een giftige cocktail van **terugleverkosten**, een overbelast stroomnet (netcongestie) en de naderende afbouw van de salderingsregeling.\n\nHuishoudens met zonnepanelen worden tegenwoordig direct gestraft voor hun succes. Energieleveranciers rekenen tot wel 15 cent per kWh aan kosten voor de stroom die u overdag terugstuurt naar het net. Hierdoor verdwijnt uw rendement als sneeuw voor de zon.\n\n### Waarom de Rekensom in 2025 Anders is\nVroeger berekenden we de terugverdientijd puur op basis van de vermeden inkoop van stroom. In 2025 voegen we daar twee cruciale factoren aan toe: de **vermeden terugleverboete** en de winst uit **onbalanssturing**. Als u een slim systeem kiest, kan de batterij handelen op de energiemarkt terwijl u slaapt.\n\n## Deep-Dive: De Top 5 Thuisbatterijen van 2025\n\n### 1. Tesla Powerwall 3: De Onbetwiste Koning van Integratie\nTesla heeft met de Powerwall 3 een systeem neergezet dat de markt in 2025 domineert. Het grootste verschil met zijn voorganger is de volledig geïntegreerde **hybride omvormer**.\n\n### 2. AlphaESS SMILE-B3: De Meester van de Modulariteit\nVoor gezinnen die flexibiliteit zoeken, is de AlphaESS SMILE-B3 vaak de beste keuze. Dit systeem maakt gebruik van **LiFePO4-technologie** (Lithium IJzerfosfaat), wat de veiligste batterijtechniek van dit moment is.\n\n### 3. Victron Energy: De Vrijheid voor de Techneut\nWie geen genoegen neemt met een 'gesloten' systeem, komt uit bij Victron. Dit merk uit Almere is wereldberoemd in de maritieme sector en heeft die robuustheid vertaald naar de thuisbatterijmarkt.\n\n### 4. Sessy: De Nederlandse Plug-and-Play Trots\nSessy is een relatief nieuwe speler die specifiek voor de Nederlandse markt is ontwikkeld. Hun focus ligt op **retrofit**: het toevoegen van een accu aan een bestaande installatie.\n\n### 5. Huawei LUNA2000: Esthetiek ontmoet Efficiëntie\nHuawei heeft met de LUNA2000-serie een systeem dat niet misstaat in een modern interieur of garage.\n\n## Gedetailleerd Technisch Vergelijk 2025\n\n[ComparisonTable]\n\n## Rendement en Financiën: De 0% BTW Kans\nEen cruciaal voordeel in 2025 is de **0% BTW-regeling** voor de aanschaf en installatie van een thuisbatterij. Dit scheelt u direct 21% op de investering. In combinatie met een dynamisch energiecontract kunt u de terugverdientijd terugbrengen naar minder dan 7 jaar.\n\n[Halt: Hier later affiliate link invoegen]\n\n### Conversie-tip: Vergelijk Offertes\nDe installatie van een thuisbatterij is vakwerk. Wij adviseren altijd om minimaal 3 offertes te vergelijken van erkende, gecertificeerde installateurs. Dit bespaart u vaak tot wel 20% op de totale installatiekosten.\n\n## Conclusie: Welk Systeem Moet U Kiezen?\n\n* **Wilt u de beste software en onbalanssturing?** Kies voor de **Tesla Powerwall 3**.\n* **Zoekt u een veilig en modulair systeem voor een gezin?** De **AlphaESS SMILE-B3** is uw beste partner.\n* **Bent u een tech-liefhebber die volledige controle wil?** Ga voor **Victron Energy**.\n\nBereken nu uw persoonlijke winst met onze Rendementscalculator en zorg dat u klaar bent voor de energietoekomst.`
   }
 ];
 

@@ -38,6 +38,15 @@ export interface BrandComparison {
   bestFor: string;
 }
 
+export interface TechnicalSpec {
+  label: string;
+  tesla: string;
+  alpha: string;
+  victron: string;
+  sessy: string;
+  huawei: string;
+}
+
 export interface AdviceStep {
   title: string;
   description: string;
