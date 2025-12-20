@@ -1,259 +1,337 @@
 
-import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import Calculator from './components/Calculator';
-import Footer from './components/Footer';
-import FloatingCTA from './components/FloatingCTA';
-import DailyCycleChart from './components/DailyCycleChart';
-import BrandComparisonTable from './components/BrandComparisonTable';
-import OnbalansSimulator from './components/OnbalansSimulator';
-import TechnicalQuiz from './components/TechnicalQuiz';
-import FAQSection from './components/FAQSection';
-import AboutUs from './components/AboutUs';
+import React, { useState, useEffect, useRef } from 'react';
+import { Chart, registerables } from 'chart.js';
+import { GoogleGenAI } from "@google/genai";
+import { BLOG_POSTS, TOP_5_BRANDS, LEGAL_PAGES, TECHNICAL_SPECS, ADVICE_STEPS } from './constants';
 import { CalculationResult, BlogPost, AppTab } from './types';
-// Fixed error on line 14: Removed TARGET_GROUPS as it is not exported from constants.ts and is unused in this file.
-import { BLOG_POSTS, TOP_5_BRANDS, LEGAL_PAGES } from './constants';
 
-const App: React.FC = () => {
+Chart.register(...registerables);
+
+// --- AI SERVICE ---
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+const getAIAdvice = async (consumption: number, panels: number, resultSize: number): Promise<string> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `
+        Je bent een onafhankelijke Nederlandse Analytisch Energie Consultant voor 2025.
+        Geef een professioneel en objectief advies gebaseerd op de volgende data:
+        - Jaarverbruik: ${consumption} kWh
+        - Aantal zonnepanelen: ${panels}
+        - Geadviseerde opslagcapaciteit: ${resultSize} kWh
+        
+        STRIKTE PSYCHOLOGISCHE INSTRUCTIE (HET DREMPEL-EFFECT):
+        1. Begin met een bevestiging van het potentieel (bijv. "Deze configuratie is rendabel").
+        2. SCHAKEL OVER NAAR DE DREMPEL: Waarschuw de gebruiker expliciet dat de installatie technisch complex is.
+        3. Benadruk dat brandveiligheid, garantie en verzekeringsvoorwaarden direct afhankelijk zijn van een gecertificeerde installatie (geen doe-het-zelf).
+        4. Leg uit dat een dynamisch energiecontract essentieel is om deze specifieke capaciteit optimaal te benutten (handelen op uurprijzen).
+        5. Eindig met het advies om minimaal 3 offertes te vergelijken om installatiekwaliteit en prijs te waarborgen via erkende aanbieders.
+        6. Wees zakelijk, autoritair en behulpzaam. Maximaal 100 woorden.
+      `,
+      config: { temperature: 0.2 },
+    });
+    return response.text || "Consultancy analyse momenteel niet beschikbaar.";
+  } catch (error) {
+    return `Uw configuratie biedt een uitstekend besparingspotentieel. Voor brandveiligheid en behoud van garantie is installatie door een gecertificeerd specialist vereist. Vergelijk 3 offertes bij erkende partners.`;
+  }
+};
+
+// --- SUB-COMPONENTS ---
+
+const DailyCycleChart: React.FC = () => {
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    if (!chartRef.current) return;
+    const ctx = chartRef.current.getContext('2d');
+    if (!ctx) return;
+    const batteryGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    batteryGradient.addColorStop(0, 'rgba(66, 153, 225, 0.4)');
+    batteryGradient.addColorStop(1, 'rgba(66, 153, 225, 0)');
+    const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+    const solarData = labels.map((_, i) => {
+      const x = i - 13;
+      return Math.max(0, 6 * Math.exp(-(x * x) / 12));
+    });
+    const usageData = [0.8, 0.7, 0.6, 0.6, 0.7, 1.2, 2.5, 3.8, 2.4, 1.5, 1.2, 1.1, 1.4, 1.2, 1.3, 1.5, 2.2, 4.5, 4.8, 4.2, 3.5, 2.4, 1.5, 1.0];
+    const batteryData = labels.map((_, i) => {
+      if (i >= 10 && i <= 16) return solarData[i] - 1.2;
+      if (i >= 17 && i <= 22) return usageData[i] - 0.8;
+      return 0;
+    });
+    const chart = new Chart(chartRef.current, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Zon (Opwek)', data: solarData, borderColor: '#F6AD55', backgroundColor: 'transparent', tension: 0.4, borderWidth: 4, pointRadius: 0 },
+          { label: 'Huis (Verbruik)', data: usageData, borderColor: '#E53E3E', backgroundColor: 'transparent', tension: 0.4, borderWidth: 4, pointRadius: 0 },
+          { label: 'Batterij Effect', data: batteryData, borderColor: '#4299E1', backgroundColor: batteryGradient, fill: true, tension: 0.4, borderWidth: 0, pointRadius: 0 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: '600' } } } },
+        scales: { y: { display: false }, x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } } }
+      }
+    });
+    return () => chart.destroy();
+  }, []);
+  return <div className="w-full h-64 md:h-80 bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-inner"><canvas ref={chartRef}></canvas></div>;
+};
+
+const OnbalansSimulator: React.FC = () => {
+  const [capacity, setCapacity] = useState(10);
+  const [dailyProfit, setDailyProfit] = useState(0);
+  const chartRef = useRef<HTMLCanvasElement>(null);
+  const chartInstance = useRef<Chart | null>(null);
+
+  useEffect(() => {
+    const prices = Array.from({ length: 24 }, (_, i) => {
+      const base = 0.15;
+      const solarDip = i >= 11 && i <= 15 ? -0.25 : 0;
+      const eveningPeak = i >= 18 && i <= 21 ? 0.35 : 0;
+      return Math.round((base + solarDip + eveningPeak + (Math.random() - 0.5) * 0.1) * 100) / 100;
+    });
+    const profit = Math.max(0, (Math.max(...prices) - Math.min(...prices)) * capacity * 0.9);
+    setDailyProfit(profit);
+
+    if (chartRef.current) {
+      if (chartInstance.current) chartInstance.current.destroy();
+      const ctx = chartRef.current.getContext('2d');
+      if (ctx) {
+        chartInstance.current = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+            datasets: [{ data: prices, backgroundColor: prices.map(p => p < 0 ? '#48BB78' : '#1A202C'), borderRadius: 8 }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { ticks: { callback: (v) => `€${v}` } }, x: { grid: { display: false } } }
+          }
+        });
+      }
+    }
+  }, [capacity]);
+
+  return (
+    <div className="bg-white rounded-[3rem] p-8 shadow-2xl border border-gray-100">
+      <div className="flex justify-between items-center mb-8">
+        <h3 className="text-2xl font-black uppercase italic tracking-tighter">Onbalans Simulator</h3>
+        <div className="bg-[#48BB78] text-white px-6 py-3 rounded-2xl text-center">
+          <p className="text-[10px] font-black uppercase tracking-widest">Dagwinst</p>
+          <p className="text-2xl font-black">€{dailyProfit.toFixed(2)}</p>
+        </div>
+      </div>
+      <div className="h-48 mb-8"><canvas ref={chartRef}></canvas></div>
+      <input type="range" min="5" max="30" step="5" value={capacity} onChange={(e) => setCapacity(parseInt(e.target.value))} className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#48BB78]" />
+      <div className="flex justify-between text-[10px] font-black text-gray-400 uppercase mt-4"><span>5 kWh</span><span>{capacity} kWh</span><span>30 kWh</span></div>
+    </div>
+  );
+};
+
+// --- MAIN APP COMPONENT ---
+
+export default function App() {
   const [result, setResult] = useState<(CalculationResult & { postalCode: string }) | null>(null);
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [selectedBlog, setSelectedBlog] = useState<BlogPost | null>(null);
   const [activeLegal, setActiveLegal] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [calcInput, setCalcInput] = useState({ consumption: 4000, panels: 10, postalCode: '' });
 
   const navigateTo = (tab: AppTab, anchor?: string) => {
     setActiveTab(tab);
     setSelectedBlog(null);
     setActiveLegal(tab === 'legal' ? anchor || 'privacy' : null);
-    
     if (tab === 'home' && anchor) {
       setTimeout(() => {
-        const element = document.getElementById(anchor);
-        if (element) {
-          const yOffset = -100;
-          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-          window.scrollTo({ top: y, behavior: 'smooth' });
-        }
+        const el = document.getElementById(anchor);
+        if (el) window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
       }, 100);
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  const openBlog = (slug: string) => {
-    const blog = BLOG_POSTS.find(b => b.slug === slug);
-    if (blog) {
-      setSelectedBlog(blog);
-      setActiveTab('kennisbank');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  const handleCalculate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const kWp = calcInput.panels * 0.4;
+    const idealSize = Math.max(2, Math.round(kWp * 1.2 * 10) / 10);
+    const aiAdvice = await getAIAdvice(calcInput.consumption, calcInput.panels, idealSize);
+    
+    setResult({
+      idealSize,
+      paybackTime: Math.round((idealSize * 850) / (idealSize * 82) * 10) / 10,
+      annualSavings: Math.round(idealSize * 82),
+      aiAdvice,
+      postalCode: calcInput.postalCode
+    });
+    setLoading(false);
+    setTimeout(() => {
+      document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   const renderBlogContent = (content: string) => {
-    if (!content) return null;
-    const blocks = content.split(/(\[ComparisonTable\]|(?:\n|^)(?:\|.*\|(?:\n|$|(?=$)))+)/);
-
-    return blocks.map((block, blockIdx) => {
-      if (!block || !block.trim()) return null;
-      if (block === '[ComparisonTable]') return <BrandComparisonTable key={blockIdx} />;
-
-      const trimmedBlock = block.trim();
-      if (trimmedBlock.startsWith('|')) {
-        const rows = trimmedBlock.split('\n').filter(r => r.trim() && !r.includes('| :---'));
-        if (rows.length === 0) return null;
-        const headerCells = rows[0].split('|').filter(c => c.trim());
-
-        return (
-          <div key={blockIdx} className="my-16 overflow-x-auto rounded-[3.5rem] border border-gray-100 shadow-2xl bg-white p-2">
-            <table className="w-full text-left border-collapse min-w-[700px]">
-              <thead className="bg-[#1A202C] text-white">
-                <tr>
-                  {headerCells.map((cell, i) => (
-                    <th key={i} className="p-10 text-[11px] font-black uppercase tracking-[0.2em]">{cell.trim()}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {rows.slice(1).map((row, i) => (
-                  <tr key={i} className="hover:bg-gray-50 transition-colors">
-                    {row.split('|').filter(c => c.trim()).map((cell, j) => (
-                      <td key={j} className={`p-10 text-xl font-medium ${j === 0 ? 'font-black italic uppercase text-gray-900 border-r border-gray-50' : 'text-gray-600'}`}>
-                        {cell.trim()}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        );
-      }
-
-      return block.split('\n').map((line, i) => {
-        if (!line.trim() && i > 0) return <div key={`${blockIdx}-${i}`} className="h-8" />;
-        const trimmedLine = line.trim();
-        if (trimmedLine.startsWith('## ')) return <h2 key={`${blockIdx}-${i}`} className="text-5xl font-black mt-24 mb-12 text-gray-900 border-l-[16px] border-[#48BB78] pl-12 uppercase tracking-tighter leading-none italic">{trimmedLine.replace('## ', '')}</h2>;
-        if (trimmedLine.startsWith('### ')) return <h3 key={`${blockIdx}-${i}`} className="text-3xl font-bold mt-16 mb-8 text-gray-800 italic underline decoration-[6px] decoration-[#48BB78]/30 underline-offset-8">{trimmedLine.replace('### ', '')}</h3>;
-        if (trimmedLine.startsWith('* ')) return <li key={`${blockIdx}-${i}`} className="ml-16 mb-5 text-gray-600 list-disc font-medium text-2xl leading-relaxed">{trimmedLine.replace('* ', '')}</li>;
-        if (!trimmedLine) return null;
-        return <p key={`${blockIdx}-${i}`} className="mb-12 text-gray-600 leading-relaxed text-2xl font-normal text-justify" dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-gray-900">$1</strong>') }}></p>;
-      });
+    return content.split('\n').map((line, i) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('## ')) return <h2 key={i} className="text-4xl font-black mt-16 mb-8 text-gray-900 border-l-[12px] border-[#48BB78] pl-8 uppercase italic">{trimmed.replace('## ', '')}</h2>;
+      if (trimmed.startsWith('### ')) return <h3 key={i} className="text-2xl font-bold mt-10 mb-6 text-gray-800 italic underline decoration-4 decoration-[#48BB78]/30">{trimmed.replace('### ', '')}</h3>;
+      if (trimmed.startsWith('* ')) return <li key={i} className="ml-12 mb-4 text-gray-600 list-disc font-medium text-xl leading-relaxed">{trimmed.replace('* ', '')}</li>;
+      if (!trimmed) return <div key={i} className="h-4" />;
+      return <p key={i} className="mb-8 text-gray-600 leading-relaxed text-xl font-normal text-justify" dangerouslySetInnerHTML={{ __html: trimmed.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}></p>;
     });
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7FAFC] selection:bg-[#48BB78]/30 selection:text-black">
-      <Header onNavigate={navigateTo} activeTab={activeTab} hasResult={!!result} />
+    <div className="min-h-screen flex flex-col bg-[#F7FAFC] font-['Inter']">
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigateTo('home')}>
+            <div className="w-10 h-10 bg-[#48BB78] rounded-xl flex items-center justify-center">
+              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            </div>
+            <span className="text-xl font-black text-gray-900 uppercase tracking-tighter italic">Thuisbatterij Wijzer</span>
+          </div>
+          <nav className="hidden md:flex items-center space-x-8 text-[11px] font-black text-gray-400 uppercase tracking-widest">
+            <button onClick={() => navigateTo('home')} className={activeTab === 'home' ? 'text-[#48BB78]' : ''}>Home</button>
+            <button onClick={() => navigateTo('kennisbank')} className={activeTab === 'kennisbank' ? 'text-[#48BB78]' : ''}>Kennisbank</button>
+            <button onClick={() => navigateTo('over-ons')} className={activeTab === 'over-ons' ? 'text-[#48BB78]' : ''}>Over Ons</button>
+            <button onClick={() => navigateTo('home', 'calculator')} className="bg-[#48BB78] text-white px-6 py-3 rounded-full hover:bg-black transition-all">Bereken Besparing</button>
+          </nav>
+        </div>
+      </header>
 
       <main className="flex-grow">
         {activeTab === 'home' && (
           <div className="animate-in">
-            {/* Hero Section */}
-            <section id="hero" className="relative pt-24 pb-32 overflow-hidden bg-[#F7FAFC]">
-              <div className="max-w-7xl mx-auto px-4 relative z-10 text-center lg:text-left">
-                <div className="flex flex-col lg:flex-row items-center gap-20">
-                  <div className="flex-1">
-                    <div className="inline-flex items-center px-6 py-3 rounded-full bg-white shadow-md border border-gray-100 text-[#48BB78] text-[12px] font-black mb-12 uppercase tracking-[0.3em]">
-                      <span className="flex h-3 w-3 rounded-full bg-[#48BB78] mr-4 animate-pulse"></span>
-                      Technologie Update: Maart 2025
-                    </div>
-                    <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-[#1A202C] leading-[0.85] mb-12 tracking-tighter">
-                      Stop de <br />
-                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#48BB78] to-[#38a169]">Terugleverboete</span>
-                    </h1>
-                    <p className="text-3xl text-gray-400 mb-16 max-w-2xl leading-relaxed font-medium italic">
-                      Wij berekenen exact hoeveel kWh opslag u nodig heeft om uw energierekening in 2025 te neutraliseren.
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center lg:justify-start gap-8">
-                      <button onClick={() => navigateTo('home', 'calculator-anchor')} className="bg-[#1A202C] text-white px-16 py-8 rounded-[3rem] font-black uppercase tracking-widest text-sm hover:bg-black transition-all shadow-4xl hover:translate-y-[-4px]">Start Analyse</button>
-                      <button onClick={() => navigateTo('home', 'experts')} className="bg-white border-4 border-gray-100 text-gray-600 px-16 py-8 rounded-[3rem] font-black uppercase tracking-widest text-sm hover:border-[#48BB78] transition-all">Gidsen 2025</button>
-                    </div>
+            {/* HERO */}
+            <section className="relative pt-20 pb-32 overflow-hidden">
+              <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+                <div className="text-center lg:text-left">
+                  <div className="inline-block px-4 py-2 rounded-full bg-[#48BB78]/10 text-[#48BB78] text-[10px] font-black uppercase tracking-widest mb-8 italic">Update: Energiemarkt Maart 2025</div>
+                  <h1 className="text-6xl md:text-8xl font-black text-gray-900 leading-[0.85] mb-8 tracking-tighter uppercase italic">
+                    Stop De <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-[#48BB78] to-[#38a169]">Terugleverboete</span>
+                  </h1>
+                  <p className="text-2xl text-gray-400 mb-12 max-w-xl italic font-medium leading-relaxed">Verzilver uw zonnestroom en neutraliseer uw energierekening met AI-gestuurde opslag.</p>
+                  <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
+                    <button onClick={() => navigateTo('home', 'calculator')} className="bg-gray-900 text-white px-12 py-6 rounded-[2rem] font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform shadow-2xl">Start Analyse</button>
+                    <button onClick={() => navigateTo('home', 'experts')} className="bg-white border-2 border-gray-100 text-gray-500 px-12 py-6 rounded-[2rem] font-black uppercase text-xs tracking-widest hover:border-[#48BB78] transition-all">Lees Gidsen</button>
                   </div>
-                  <div id="calculator-anchor" className="flex-1 w-full flex justify-center scale-110 origin-center">
-                    <Calculator onResult={setResult} />
+                </div>
+                <div id="calculator" className="flex justify-center">
+                  <div className="bg-white p-10 rounded-[4rem] shadow-4xl border border-gray-50 max-w-md w-full relative">
+                    <h3 className="text-2xl font-black mb-8 italic uppercase tracking-tighter">Rendement Check</h3>
+                    <form onSubmit={handleCalculate} className="space-y-6">
+                      <input type="text" placeholder="Postcode (1234 AB)" value={calcInput.postalCode} onChange={e => setCalcInput({...calcInput, postalCode: e.target.value.toUpperCase()})} className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none font-bold" required />
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2"><label className="text-[9px] font-black uppercase text-gray-400">Verbruik (kWh)</label><input type="number" value={calcInput.consumption} onChange={e => setCalcInput({...calcInput, consumption: parseInt(e.target.value)})} className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none font-bold" /></div>
+                        <div className="space-y-2"><label className="text-[9px] font-black uppercase text-gray-400">Panelen (stuks)</label><input type="number" value={calcInput.panels} onChange={e => setCalcInput({...calcInput, panels: parseInt(e.target.value)})} className="w-full px-6 py-4 rounded-2xl bg-gray-50 border-none font-bold" /></div>
+                      </div>
+                      <button type="submit" disabled={loading} className="w-full bg-[#48BB78] text-white py-6 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-black transition-all shadow-xl flex justify-center items-center">
+                        {loading ? 'Analyseert...' : 'Bereken Mijn Rapport'}
+                      </button>
+                    </form>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Top 5 Brands */}
-            <section id="merken" className="py-32 bg-white">
+            {/* RESULTS SECTION */}
+            {result && (
+              <section id="results-section" className="py-32 bg-white">
                 <div className="max-w-7xl mx-auto px-4">
-                    <div className="text-center mb-24">
-                        <h2 className="text-6xl font-black text-gray-900 tracking-tighter mb-8 italic underline decoration-[12px] decoration-[#48BB78]/20 text-center uppercase">Top 5 Thuisbatterijen</h2>
-                        <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Gebaseerd op rendement, garantie en AI-sturing</p>
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+                    <div className="bg-gray-50 p-10 rounded-[3rem] text-center border-b-[10px] border-[#48BB78]">
+                      <p className="text-[10px] font-black uppercase text-gray-400 mb-2">Ideale Opslag</p>
+                      <p className="text-5xl font-black text-gray-900">{result.idealSize} <span className="text-xl">kWh</span></p>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-                        {TOP_5_BRANDS.map((brand, idx) => (
-                            <div key={idx} className="bg-[#F7FAFC] p-10 rounded-[4rem] border-2 border-transparent hover:border-[#48BB78]/30 transition-all hover:shadow-4xl text-center group">
-                                <div className="text-[#48BB78] font-black text-5xl mb-6 italic opacity-50 group-hover:opacity-100 transition-opacity">#{idx+1}</div>
-                                <h3 className="text-2xl font-black mb-4 text-gray-900 tracking-tight leading-none uppercase italic">{brand.name}</h3>
-                                <div className="flex flex-col items-center gap-4 border-t border-gray-100 pt-8 font-black text-2xl text-gray-900 italic">
-                                  {brand.score} <span className="text-xs text-gray-400 not-italic uppercase tracking-widest">Score</span>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="bg-gray-50 p-10 rounded-[3rem] text-center border-b-[10px] border-[#ED8936]">
+                      <p className="text-[10px] font-black uppercase text-gray-400 mb-2">Besparing / Jaar</p>
+                      <p className="text-5xl font-black text-gray-900">€{result.annualSavings}</p>
                     </div>
+                    <div className="bg-gray-50 p-10 rounded-[3rem] text-center border-b-[10px] border-blue-500">
+                      <p className="text-[10px] font-black uppercase text-gray-400 mb-2">Terugverdientijd</p>
+                      <p className="text-5xl font-black text-gray-900">{result.paybackTime} <span className="text-xl">Jaar</span></p>
+                    </div>
+                  </div>
+                  <div className="bg-gray-900 text-white p-12 rounded-[4rem] relative overflow-hidden">
+                    <div className="relative z-10">
+                      <h3 className="text-3xl font-black mb-8 italic uppercase border-l-8 border-[#48BB78] pl-8">AI Expert Analyse</h3>
+                      <p className="text-xl text-gray-300 font-medium italic leading-relaxed">{result.aiAdvice}</p>
+                    </div>
+                    <div className="absolute top-0 right-0 p-12 opacity-5"><svg className="w-32 h-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg></div>
+                  </div>
                 </div>
+              </section>
+            )}
+
+            {/* INTERACTIVE WIDGETS */}
+            <section className="py-32 bg-gray-50">
+              <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
+                <OnbalansSimulator />
+                <div className="bg-gray-900 rounded-[3rem] p-10 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter mb-6">De Dagelijkse Cyclus</h3>
+                    <p className="text-gray-400 text-lg italic mb-8">Visualiseer hoe uw batterij de "Solar Peak" van de middag verschuift naar uw avondgebruik.</p>
+                  </div>
+                  <DailyCycleChart />
+                </div>
+              </div>
             </section>
 
-            {/* Interactive Section - DE WIDGETS ZIJN HIER */}
-            <section className="py-40 bg-gray-900">
+            {/* KNOWLEDGE BASE TEASER */}
+            <section id="experts" className="py-32 bg-white">
               <div className="max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-stretch mb-20">
-                  <div className="transform hover:scale-[1.02] transition-transform">
-                    <OnbalansSimulator />
-                  </div>
-                  <div className="transform hover:scale-[1.02] transition-transform">
-                    <TechnicalQuiz />
-                  </div>
+                <div className="flex justify-between items-end mb-16">
+                  <h2 className="text-5xl font-black italic uppercase tracking-tighter">Masterclasses <span className="text-[#48BB78]">2025</span></h2>
+                  <button onClick={() => navigateTo('kennisbank')} className="text-[10px] font-black uppercase tracking-widest text-[#48BB78] underline underline-offset-8">Bekijk alles &rarr;</button>
                 </div>
-                
-                {/* De Dagelijkse Cyclus Widget */}
-                <div className="bg-white/5 p-12 rounded-[5rem] border border-white/10 mt-20">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 items-center">
-                    <div className="lg:col-span-1 text-white">
-                      <h3 className="text-4xl font-black mb-8 italic uppercase tracking-tighter">De Dagelijkse Cyclus</h3>
-                      <p className="text-gray-400 text-xl font-medium italic leading-relaxed mb-8">
-                        Visualiseer hoe uw batterij de "Solar Peak" van de middag verschuift naar de "Evening Piek" van uw huishouden.
-                      </p>
-                      <ul className="space-y-4">
-                        <li className="flex items-center text-[#F6AD55] font-black uppercase text-xs tracking-widest"><span className="w-4 h-1 bg-[#F6AD55] mr-3"></span> Zon Opwek</li>
-                        <li className="flex items-center text-[#E53E3E] font-black uppercase text-xs tracking-widest"><span className="w-4 h-1 bg-[#E53E3E] mr-3"></span> Huis Verbruik</li>
-                        <li className="flex items-center text-[#4299E1] font-black uppercase text-xs tracking-widest"><span className="w-4 h-1 bg-[#4299E1] mr-3"></span> Batterij Opslag</li>
-                      </ul>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {BLOG_POSTS.slice(0, 3).map(post => (
+                    <div key={post.id} className="group cursor-pointer" onClick={() => { setSelectedBlog(post); setActiveTab('kennisbank'); window.scrollTo(0,0); }}>
+                      <div className="aspect-[16/10] rounded-[3rem] overflow-hidden mb-6 shadow-2xl grayscale group-hover:grayscale-0 transition-all duration-700">
+                        <img src={post.imageUrl} className="w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-700" alt={post.title} />
+                      </div>
+                      <h3 className="text-2xl font-black italic uppercase mb-3 leading-tight group-hover:text-[#48BB78] transition-colors">{post.title}</h3>
+                      <p className="text-gray-400 text-sm italic font-medium line-clamp-2">{post.excerpt}</p>
                     </div>
-                    <div className="lg:col-span-2">
-                      <DailyCycleChart />
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </section>
-
-            {/* Knowledge Base Teaser (Grid van 6 op home) */}
-            <section id="experts" className="py-40 bg-[#1A202C] text-white">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex flex-col md:flex-row justify-between items-end mb-24 gap-8">
-                        <div>
-                          <span className="text-[12px] font-black text-[#48BB78] uppercase tracking-[0.5em] mb-6 block italic">Kennisbank 2025</span>
-                          <h2 className="text-7xl font-black tracking-tighter italic uppercase leading-none">Masterclasses</h2>
-                        </div>
-                        <button onClick={() => navigateTo('kennisbank')} className="bg-[#48BB78] text-white px-12 py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-all">Alle 7 Gidsen &rarr;</button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                        {BLOG_POSTS.slice(0, 6).map((post) => (
-                            <div key={post.id} className="group cursor-pointer bg-white/5 p-6 rounded-[4rem] hover:bg-white/10 transition-all border border-transparent hover:border-[#48BB78]/30" onClick={() => openBlog(post.slug)}>
-                                <div className="aspect-[16/10] rounded-[3rem] overflow-hidden mb-10 shadow-4xl">
-                                    <img src={post.imageUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-110 group-hover:scale-100" alt={post.title} />
-                                </div>
-                                <div className="px-6 pb-6">
-                                  <h3 className="text-3xl font-bold mb-6 italic uppercase leading-none tracking-tighter group-hover:text-[#48BB78] transition-colors">{post.title}</h3>
-                                  <span className="text-[11px] font-black text-[#48BB78] uppercase tracking-widest flex items-center">
-                                    Expert Analyse <span className="ml-3 group-hover:translate-x-3 transition-transform">&rarr;</span>
-                                  </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            <FAQSection onCtaClick={() => navigateTo('home', 'calculator-anchor')} />
           </div>
         )}
 
         {activeTab === 'kennisbank' && (
-          <section className="py-40 bg-white min-h-screen">
+          <section className="py-20 bg-white min-h-screen">
             <div className="max-w-7xl mx-auto px-4">
               {selectedBlog ? (
-                <article className="animate-in max-w-6xl mx-auto">
-                  <button onClick={() => setSelectedBlog(null)} className="text-[12px] font-black uppercase tracking-[0.4em] text-[#48BB78] mb-20 flex items-center hover:-translate-x-4 transition-transform italic underline decoration-[6px] underline-offset-8">&larr; Terug naar het Archief</button>
-                  <h1 className="text-6xl md:text-9xl font-black mb-20 leading-[0.85] text-gray-900 tracking-tighter uppercase italic">{selectedBlog.title}</h1>
-                  <div className="mb-32"><img src={selectedBlog.imageUrl} alt={selectedBlog.title} className="w-full h-[700px] object-cover rounded-[6rem] grayscale shadow-4xl" /></div>
-                  <div className="prose prose-2xl max-w-none text-gray-700 font-medium">{renderBlogContent(selectedBlog.content)}</div>
+                <article className="animate-in max-w-5xl mx-auto">
+                  <button onClick={() => setSelectedBlog(null)} className="text-[10px] font-black uppercase tracking-widest text-[#48BB78] mb-12 flex items-center">&larr; Terug naar archief</button>
+                  <h1 className="text-6xl md:text-8xl font-black mb-12 italic uppercase leading-none tracking-tighter">{selectedBlog.title}</h1>
+                  <div className="aspect-video rounded-[4rem] overflow-hidden mb-20 shadow-4xl"><img src={selectedBlog.imageUrl} className="w-full h-full object-cover grayscale" /></div>
+                  <div className="prose prose-2xl max-w-none">{renderBlogContent(selectedBlog.content)}</div>
                 </article>
               ) : (
                 <div className="animate-in">
-                  <div className="mb-40 text-center">
-                    <span className="text-[14px] font-black text-[#48BB78] uppercase tracking-[0.6em] mb-8 block italic">Onafhankelijke Masterclasses</span>
-                    <h1 className="text-7xl md:text-9xl font-black mb-12 text-gray-900 tracking-tighter uppercase italic">Het Dossier</h1>
-                    <p className="text-2xl text-gray-400 font-medium italic max-w-3xl mx-auto">7 Diepgaande analyses over de toekomst van uw energiehuishouding.</p>
-                  </div>
-                  {/* Grid dat ALLE 7 gidsen toont */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
+                  <h1 className="text-7xl font-black mb-20 italic uppercase tracking-tighter text-center">Het Kennis <span className="text-[#48BB78]">Archief</span></h1>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
                     {BLOG_POSTS.map(post => (
-                      <div key={post.id} className="group cursor-pointer bg-gray-50 p-10 rounded-[5rem] hover:bg-white hover:shadow-4xl transition-all border-2 border-transparent hover:border-[#48BB78]/20" onClick={() => openBlog(post.slug)}>
-                        <div className="aspect-[16/10] rounded-[3.5rem] overflow-hidden mb-12 shadow-2xl">
-                            <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 scale-105 group-hover:scale-100" />
+                      <div key={post.id} className="group cursor-pointer bg-gray-50 p-8 rounded-[4rem] hover:bg-white hover:shadow-4xl transition-all" onClick={() => setSelectedBlog(post)}>
+                        <div className="aspect-[16/10] rounded-[2.5rem] overflow-hidden mb-8 shadow-xl grayscale group-hover:grayscale-0 transition-all duration-700">
+                          <img src={post.imageUrl} className="w-full h-full object-cover" />
                         </div>
-                        <div className="px-6 flex flex-col h-full">
-                          <h2 className="text-4xl font-black mb-8 group-hover:text-[#48BB78] italic uppercase leading-[1] tracking-tighter transition-colors">{post.title}</h2>
-                          <p className="text-gray-500 mb-10 font-medium italic text-xl line-clamp-4 leading-relaxed">{post.excerpt}</p>
-                          <div className="mt-auto pt-10 border-t border-gray-100 flex items-center justify-between">
-                              <span className="text-[11px] font-black text-[#48BB78] uppercase tracking-widest">Masterclass &rarr;</span>
-                              <span className="text-[10px] font-black text-gray-300 uppercase italic tracking-widest">{post.readingTime}</span>
-                          </div>
-                        </div>
+                        <h2 className="text-2xl font-black mb-4 italic uppercase leading-none group-hover:text-[#48BB78]">{post.title}</h2>
+                        <p className="text-gray-400 text-sm italic font-medium mb-6 line-clamp-3">{post.excerpt}</p>
+                        <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-widest">Lees Meer &rarr;</span>
                       </div>
                     ))}
                   </div>
@@ -263,27 +341,58 @@ const App: React.FC = () => {
           </section>
         )}
 
-        {activeTab === 'over-ons' && <AboutUs onCtaClick={() => navigateTo('home', 'calculator-anchor')} />}
-        
+        {activeTab === 'over-ons' && (
+          <section className="py-20 bg-white min-h-screen animate-in">
+            <div className="max-w-4xl mx-auto px-4 text-center">
+              <span className="text-[10px] font-black text-[#48BB78] uppercase tracking-widest mb-4 block italic">Onze Missie</span>
+              <h1 className="text-6xl md:text-8xl font-black mb-12 italic uppercase leading-[0.85] tracking-tighter">Orde In De <br /><span className="text-[#48BB78]">Energiechaos</span></h1>
+              <div className="prose prose-2xl text-gray-500 italic font-medium leading-relaxed text-left space-y-8">
+                <p>Wij zijn een onafhankelijk team van dataspecialisten die de Nederlandse energiemarkt van 2025 analyseren. Ons doel is simpel: huishoudens helpen navigeren door de complexe wereld van terugleverkosten en dynamische contracten.</p>
+                <p>Wij verkopen zelf geen batterijen. Ons verdienmodel is transparant: wij ontvangen een vergoeding van gecertificeerde partners wanneer u via ons platform een offerte aanvraagt of overstapt. Dit stelt ons in staat onze tools gratis en onafhankelijk te houden.</p>
+              </div>
+            </div>
+          </section>
+        )}
+
         {activeTab === 'legal' && activeLegal && (
-          <section className="py-40 bg-white min-h-screen">
-            <div className="max-w-4xl mx-auto px-4 animate-in">
-              <h1 className="text-7xl font-black mb-24 text-gray-900 tracking-tighter italic uppercase leading-none underline decoration-[16px] decoration-[#48BB78]/20">
-                {LEGAL_PAGES[activeLegal].title}
-              </h1>
-              <div 
-                className="prose prose-2xl max-w-none text-gray-600 font-medium leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: LEGAL_PAGES[activeLegal].content }}
-              />
+          <section className="py-20 bg-white min-h-screen animate-in">
+            <div className="max-w-4xl mx-auto px-4">
+              <h1 className="text-6xl font-black mb-12 italic uppercase tracking-tighter underline decoration-8 decoration-[#48BB78]/20">{LEGAL_PAGES[activeLegal].title}</h1>
+              <div className="prose prose-xl max-w-none text-gray-600 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: LEGAL_PAGES[activeLegal].content }} />
             </div>
           </section>
         )}
       </main>
 
-      <Footer onNavigate={navigateTo} />
-      <FloatingCTA onClick={() => navigateTo('home', 'calculator-anchor')} />
+      {/* FOOTER */}
+      <footer className="bg-gray-900 text-white pt-20 pb-10 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 pb-16 border-b border-white/5">
+          <div className="col-span-1 md:col-span-2">
+            <h4 className="text-2xl font-black italic uppercase tracking-tighter mb-6">Thuisbatterij Wijzer</h4>
+            <p className="text-gray-400 text-lg font-medium italic leading-relaxed max-w-md">Onafhankelijk adviesplatform voor de transitie naar slimme energie-opslag. Realtime data, AI-gestuurd advies.</p>
+          </div>
+          <div>
+            <h5 className="text-[10px] font-black uppercase tracking-widest text-[#48BB78] mb-6">Navigatie</h5>
+            <ul className="space-y-4 text-sm font-bold uppercase tracking-widest text-gray-500">
+              <li><button onClick={() => navigateTo('home')} className="hover:text-white transition">Home</button></li>
+              <li><button onClick={() => navigateTo('kennisbank')} className="hover:text-white transition">Kennisbank</button></li>
+              <li><button onClick={() => navigateTo('over-ons')} className="hover:text-white transition">Over Ons</button></li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-[10px] font-black uppercase tracking-widest text-[#ED8936] mb-6">Juridisch</h5>
+            <ul className="space-y-4 text-sm font-bold uppercase tracking-widest text-gray-500">
+              <li><button onClick={() => navigateTo('legal', 'privacy')} className="hover:text-white transition">Privacy</button></li>
+              <li><button onClick={() => navigateTo('legal', 'cookies')} className="hover:text-white transition">Cookies</button></li>
+              <li><button onClick={() => navigateTo('legal', 'voorwaarden')} className="hover:text-white transition">Voorwaarden</button></li>
+            </ul>
+          </div>
+        </div>
+        <div className="max-w-7xl mx-auto px-4 mt-10 text-[9px] font-black uppercase tracking-[0.2em] text-gray-600 flex flex-col md:flex-row justify-between items-center text-center">
+          <p>© 2025 Thuisbatterij Wijzer - Gecertificeerd Onafhankelijk</p>
+          <p className="mt-4 md:mt-0 italic">Berekeningen zijn indicatief - Raadpleeg altijd een expert</p>
+        </div>
+      </footer>
     </div>
   );
-};
-
-export default App;
+}
